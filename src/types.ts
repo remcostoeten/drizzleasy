@@ -27,7 +27,7 @@ export interface CrudOperations<T extends BaseEntity> {
     byId?: (id: string | number) => Promise<CrudResult<T | null>>
   }
   update: (id: string | number, data: UpdateInput<T>) => Promise<CrudResult<T[]>>
-  delete: (id: string | number) => Promise<CrudResult<T[]>>
+  destroy: (id: string | number) => Promise<CrudResult<T[]>>
 }
 
 export type ServerActionResult<T> = CrudResult<T>

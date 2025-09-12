@@ -5,7 +5,7 @@ export { crud } from './crud'
 export { configure } from './config'
 
 // Factory functions - Typed CRUD operations
-export { createFn, readFn, updateFn, deleteFn } from './factory'
+export { createFn, readFn, updateFn, destroyFn } from './factory'
 
 // Client-side utilities
 export { useOptimisticCrud, withTransition } from './client'

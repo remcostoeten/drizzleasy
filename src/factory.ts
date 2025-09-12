@@ -13,6 +13,6 @@ export function updateFn<T extends TEntity = TEntity>() {
   return (tableName: string) => crud.update<T>(tableName)
 }
 
-export function deleteFn<T extends TEntity = TEntity>() {
+export function destroyFn<T extends TEntity = TEntity>() {
   return (tableName: string) => crud.delete<T>(tableName)
 }

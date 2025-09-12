@@ -12,5 +12,5 @@ export type TOperations<T extends TEntity> = {
     byId?: (id: string | number) => Promise<TResult<T | null>>
   }
   update: (id: string | number, data: import('./entities').TUpdateInput<T>) => Promise<TResult<T[]>>
-  delete: (id: string | number) => Promise<TResult<T[]>>
+  destroy: (id: string | number) => Promise<TResult<T[]>>
 }

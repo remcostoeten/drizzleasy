@@ -1,13 +1,14 @@
-import { eq } from 'drizzle-orm'
+import { eq, and, gt, gte, lt, lte, ne, inArray, like } from 'drizzle-orm'
 import { getDb, getSchema, validateTableName } from './config'
 import { safeExecute } from './core/execute'
-import type { TEntity, TCreateInput, TUpdateInput, TResult } from './types'
+import type { TEntity, TCreateInput, TUpdateInput, TResult, TWhereClause } from './types'
 
 /**
  * @example
  * ```typescript
- * const result = await crud.create('users')({ name: 'John' })
- * const users = await crud.read('users').all()
+ * const result = await crud.create<User>('users')({ name: 'John' })
+ * const users = await crud.read<User>('users')()
+ * const activeUsers = await crud.read<User>('users').where({ status: 'active' }).execute()
  * ```
  */
 export const crud = {
@@ -23,13 +24,37 @@ export const crud = {
   },
 
   read<T extends TEntity>(tableName: string) {
-    const base = {
-      all(): Promise<TResult<T[]>> {
+    let whereConditions: any[] = []
+    
+    const queryBuilder = {
+      where(condition: TWhereClause<T>) {
+        const { buildWhereConditions } = require('./core/where')
+        const db = getDb()
+        const schema = getSchema()
+        validateTableName(tableName, schema)
+        const table = schema[tableName]
+        
+        const newCondition = buildWhereConditions(condition, table)
+        if (newCondition) {
+          whereConditions.push(newCondition)
+        }
+        return queryBuilder
+      },
+      
+      async execute(): Promise<TResult<T[]>> {
         return safeExecute(async () => {
           const db = getDb()
           const schema = getSchema()
           validateTableName(tableName, schema)
-          return await db.select().from(schema[tableName]) as T[]
+          const table = schema[tableName]
+          
+          let query = db.select().from(table)
+          
+          if (whereConditions.length > 0) {
+            query = query.where(and(...whereConditions))
+          }
+          
+          return await query as T[]
         })
       },
       
@@ -38,12 +63,28 @@ export const crud = {
           const db = getDb()
           const schema = getSchema()
           validateTableName(tableName, schema)
-          const result = await db.select().from(schema[tableName]).where(eq(schema[tableName].id, id)).limit(1) as T[]
+          const table = schema[tableName]
+          
+          const result = await db.select().from(table).where(eq(table.id, id)).limit(1) as T[]
           return result[0] || null
         })
       }
     }
-    return Object.assign(base.all, base)
+    
+    // Make it callable directly (returns all records)
+    const callable = async (): Promise<TResult<T[]>> => {
+      return safeExecute(async () => {
+        const db = getDb()
+        const schema = getSchema()
+        validateTableName(tableName, schema)
+        const table = schema[tableName]
+        
+        return await db.select().from(table) as T[]
+      })
+    }
+    
+    // Merge callable with methods
+    return Object.assign(callable, queryBuilder)
   },
 
   update<T extends TEntity>(tableName: string) {
@@ -57,13 +98,13 @@ export const crud = {
     }
   },
 
-  delete<T extends TEntity>(tableName: string) {
+  destroy<T extends TEntity>(tableName: string) {
     return (id: string | number): Promise<TResult<T[]>> => {
       return safeExecute(async () => {
         const db = getDb()
         const schema = getSchema()
         validateTableName(tableName, schema)
-        return await db.delete(schema[tableName]).where(eq(schema[tableName].id, id)).returning() as T[]
+        return await db.destroy(schema[tableName]).where(eq(schema[tableName].id, id)).returning() as T[]
       })
     }
   }
