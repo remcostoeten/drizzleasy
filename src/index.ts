@@ -1,6 +1,14 @@
+// Main CRUD interface - Primary API
+export { crud } from './crud'
+
+// Configuration
 export { configure } from './config'
-export { create } from './create'
-export { read } from './read'
-export { update } from './update'
-export { deleteRecord } from './delete'
+
+// Factory functions - Typed CRUD operations
+export { createFn, readFn, updateFn, deleteFn } from './factory'
+
+// Client-side utilities
 export { useOptimisticCrud, withTransition } from './client'
+
+// Types
+export type * from './types'

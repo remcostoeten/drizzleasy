@@ -1,21 +1,32 @@
 'use client'
 import { useOptimistic, useTransition, startTransition as reactStartTransition } from 'react'
+import type { TEntity, TResult } from './types'
 
-function useOptimisticCrud<T extends { id: number | string }>(initialData: T[]) {
+function useOptimisticCrud<T extends TEntity>(initialData: T[]) {
   const [optimisticData, addOptimistic] = useOptimistic(
     initialData,
     (state: T[], newItem: Omit<T, 'id'>) => [
       ...state,
-      { id: Date.now(), ...newItem } as T
+      { id: crypto.randomUUID(), ...newItem } as T
     ]
   )
   
   const [isPending, startTransition] = useTransition()
   
-  function optimisticCreate(newItem: Omit<T, 'id'>, serverAction: () => Promise<any>) {
+  function optimisticCreate(
+    newItem: Omit<T, 'id'>, 
+    serverAction: () => Promise<TResult<T[]>>
+  ) {
     startTransition(async () => {
       addOptimistic(newItem)
-      await serverAction()
+      try {
+        const result = await serverAction()
+        if (result.error) {
+          console.error('Server action failed:', result.error)
+        }
+      } catch (error) {
+        console.error('Optimistic create failed:', error)
+      }
     })
   }
   
@@ -26,10 +37,17 @@ function useOptimisticCrud<T extends { id: number | string }>(initialData: T[]) 
   }
 }
 
-function withTransition(serverAction: () => Promise<any>) {
+function withTransition<T>(serverAction: () => Promise<TResult<T>>) {
   return function() {
     reactStartTransition(async () => {
-      await serverAction()
+      try {
+        const result = await serverAction()
+        if (result.error) {
+          console.error('Server action failed:', result.error)
+        }
+      } catch (error) {
+        console.error('Transition failed:', error)
+      }
     })
   }
 }
