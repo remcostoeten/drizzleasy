@@ -1,6 +1,14 @@
 import { and, eq, gt, gte, lt, lte, ne, inArray, like } from 'drizzle-orm'
 import type { TWhereClause } from '../types'
 
+/**
+ * Parse simple string operators into Drizzle conditions.
+ * 
+ * @param condition - String condition like '>18', '*john*', etc.
+ * @returns Parsed operator and value, or null if no operator found
+ * 
+ * @internal Used internally by buildWhereConditions
+ */
 function parseSimpleOperator(condition: string) {
   if (condition.startsWith('>=')) {
     return { operator: 'gte', value: condition.slice(2) }
@@ -32,6 +40,22 @@ function parseSimpleOperator(condition: string) {
   return null
 }
 
+/**
+ * Build Drizzle WHERE conditions from simple syntax.
+ * 
+ * @template T - Entity type
+ * @param whereClause - WHERE clause object with simple operators
+ * @param table - Drizzle table schema
+ * @returns Combined WHERE condition or undefined
+ * 
+ * @internal Used internally by CRUD read operations
+ * 
+ * @example
+ * ```typescript
+ * // Input: { age: '>18', name: '*john*' }
+ * // Output: and(gt(table.age, 18), like(table.name, '%john%'))
+ * ```
+ */
 export function buildWhereConditions<T>(whereClause: TWhereClause<T>, table: any) {
   const conditions: any[] = []
 
