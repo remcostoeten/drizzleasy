@@ -1,7 +1,7 @@
 import { eq, and, gt, gte, lt, lte, ne, inArray, like } from 'drizzle-orm'
-import { getDb, getSchema, validateTableName } from './config'
-import { safeExecute } from './core/execute'
-import type { TEntity, TCreateInput, TUpdateInput, TResult, TWhereClause } from './types'
+import { getDb, getSchema, validateTableName } from '../config'
+import { safeExecute } from './execute'
+import type { TEntity, TCreateInput, TUpdateInput, TResult, TWhereClause } from '../types'
 
 /**
  * Main CRUD interface with ultra-simple syntax and full type safety.
@@ -124,7 +124,7 @@ export const crud = {
        * ```
        */
       where(condition: TWhereClause<T>) {
-        const { buildWhereConditions } = require('./core/where')
+        const { buildWhereConditions } = require('./where')
         const db = getDb()
         const schema = getSchema()
         validateTableName(tableName, schema)

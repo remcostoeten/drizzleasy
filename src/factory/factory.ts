@@ -1,5 +1,5 @@
-import type { TEntity } from './types'
-import { crud } from './crud'
+import type { TEntity } from '../types'
+import { crud } from '../core/crud'
 
 /**
  * Create a typed create function for reusable CRUD operations.

@@ -3,7 +3,7 @@
 import { useTransition, startTransition as reactStartTransition } from 'react'
 // @ts-ignore - useOptimistic is experimental
 import { useOptimistic } from 'react'
-import type { TEntity, TResult } from './types'
+import type { TEntity, TResult } from '../types'
 
 /**
  * React hook for performing **optimistic CRUD operations** on a local dataset.

@@ -1,10 +1,13 @@
-// Main CRUD interface - Primary API
-export { crud } from './crud'
+// Main CRUD interface
+export { crud } from './core'
+
+// Database connection (placeholder)
+// export { initializeConnection } from './database'
 
 // Configuration
 export { configure } from './config'
 
-// Factory functions - Typed CRUD operations
+// Factory functions
 export { createFn, readFn, updateFn, destroyFn } from './factory'
 
 // Client-side utilities
