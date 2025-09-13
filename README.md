@@ -94,6 +94,9 @@ const create = createFn<User>()
 const update = updateFn<User>()
 const destroy = destroyFn<User>()
 
+// Read all records
+const { data: users } = await read('users')()
+
 // Read with natural WHERE syntax
 const { data: activeUsers } = await read('users')
   .where({ status: 'active' })
