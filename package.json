@@ -26,7 +26,8 @@
     "@types/react": "^18.0.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0",
-    "@vitest/ui": "^1.0.0"
+    "@vitest/ui": "^1.0.0",
+    "tsup": "^8.0.0"
   },
   "scripts": {
     "build": "tsc",
