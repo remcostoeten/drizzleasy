@@ -17,6 +17,7 @@
     "@neondatabase/serverless": "^0.7.0",
     "@libsql/client": "^0.4.0",
     "better-sqlite3": "^9.0.0",
+    "pg": "^8.11.0",
     "glob": "^10.0.0"
   },
   "peerDependencies": {

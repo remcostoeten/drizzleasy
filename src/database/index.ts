@@ -1,5 +1,6 @@
 import { findDrizzleConfig, loadSchemaFromConfig } from './config-loader'
 import { setupPostgres } from './providers/postgres'
+import { setupPostgresLocal } from './providers/postgres-local'
 import { setupSqlite } from './providers/sqlite'
 import { setupTurso } from './providers/turso'
 
@@ -104,7 +105,12 @@ async function createSingleConnection(url: string, options?: ConnectionOptions) 
     }
     connection = await setupTurso(url, options.authToken, schema)
   } else if (url.startsWith('postgresql://') || url.startsWith('postgres://')) {
-    connection = await setupPostgres(url, schema)
+    // Detect local vs cloud PostgreSQL
+    if (url.includes('localhost') || url.includes('127.0.0.1') || url.includes(':5432')) {
+      connection = await setupPostgresLocal(url, schema)
+    } else {
+      connection = await setupPostgres(url, schema)
+    }
   } else if (url.startsWith('file:') || url.endsWith('.db')) {
     connection = await setupSqlite(url, schema)
   } else {
