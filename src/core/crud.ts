@@ -163,7 +163,7 @@ export const crud = {
             query = query.where(and(...whereConditions))
           }
           
-          return await query as T[]
+          return await query
         })
       },
       
@@ -193,8 +193,8 @@ export const crud = {
           validateTableName(tableName, schema)
           const table = schema[tableName]
           
-          const result = await db.select().from(table).where(eq(table.id, id)).limit(1) as T[]
-          return result[0] || null
+          const result = await db.select().from(table).where(eq(table.id, id)).limit(1)
+          return (result[0] as T) || null
         })
       }
     }
@@ -207,7 +207,7 @@ export const crud = {
         validateTableName(tableName, schema)
         const table = schema[tableName]
         
-        return await db.select().from(table) as T[]
+        return await db.select().from(table)
       })
     }
     
@@ -275,7 +275,7 @@ export const crud = {
         const db = getDb()
         const schema = getSchema()
         validateTableName(tableName, schema)
-        return await db.delete(schema[tableName]).where(eq(schema[tableName].id, id)).returning() as T[]
+        return await db.delete(schema[tableName]).where(eq(schema[tableName].id, id)).returning()
       })
     }
   }
