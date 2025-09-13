@@ -1,8 +1,8 @@
 // Main CRUD interface
 export { crud } from './core'
 
-// Database connection (placeholder)
-// export { initializeConnection } from './database'
+// Database connection
+export { initializeConnection } from './database'
 
 // Configuration
 export { configure } from './config'

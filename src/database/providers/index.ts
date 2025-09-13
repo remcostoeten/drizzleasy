@@ -1,4 +1,4 @@
 // Database provider exports
-export * from './postgres'
-export * from './sqlite'
-export * from './turso'
+export { setupPostgres } from './postgres'
+export { setupSqlite } from './sqlite'
+export { setupTurso } from './turso'

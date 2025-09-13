@@ -12,8 +12,14 @@
   "keywords": ["nextjs", "drizzle", "orm", "crud"],
   "author": "Remco Stoeten",
   "license": "MIT",
-  "peerDependencies": {
+  "dependencies": {
     "drizzle-orm": "^0.29.0",
+    "@neondatabase/serverless": "^0.7.0",
+    "@libsql/client": "^0.4.0",
+    "better-sqlite3": "^9.0.0",
+    "glob": "^10.0.0"
+  },
+  "peerDependencies": {
     "next": "^14.0.0",
     "react": "^18.0.0"
   },
