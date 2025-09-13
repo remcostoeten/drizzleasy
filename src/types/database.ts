@@ -1,6 +1,15 @@
-import type { DrizzleD1Database } from 'drizzle-orm/d1'
-import type { PgDatabase } from 'drizzle-orm/pg-core'
-import type { MySql2Database } from 'drizzle-orm/mysql2'
+/**
+ * Generic database type for Drizzle ORM.
+ * Supports PostgreSQL, MySQL, and SQLite databases.
+ */
+export type TDatabase = {
+  insert: (table: any) => any
+  select: () => any
+  update: (table: any) => any
+  delete: (table: any) => any
+}
 
-export type TDatabase = DrizzleD1Database<any> | PgDatabase<any> | MySql2Database<any>
+/**
+ * Schema type containing table definitions.
+ */
 export type TSchema = Record<string, any>

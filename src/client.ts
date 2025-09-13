@@ -1,6 +1,8 @@
 'use client'
 
-import { useOptimistic, useTransition, startTransition as reactStartTransition } from 'react'
+import { useTransition, startTransition as reactStartTransition } from 'react'
+// @ts-ignore - useOptimistic is experimental
+import { useOptimistic } from 'react'
 import type { TEntity, TResult } from './types'
 
 /**
@@ -43,16 +45,15 @@ function useOptimisticCrud<T extends TEntity>(initialData: T[]) {
     newItem: Omit<T, 'id'>, 
     serverAction: () => Promise<TResult<T[]>>
   ) {
-    startTransition(async () => {
+    startTransition(() => {
       addOptimistic(newItem)
-      try {
-        const result = await serverAction()
+      serverAction().then(result => {
         if (result.error) {
           console.error('Server action failed:', result.error)
         }
-      } catch (error) {
+      }).catch(error => {
         console.error('Optimistic create failed:', error)
-      }
+      })
     })
   }
   
@@ -84,15 +85,14 @@ function useOptimisticCrud<T extends TEntity>(initialData: T[]) {
  */
 function withTransition<T>(serverAction: () => Promise<TResult<T>>) {
   return function() {
-    reactStartTransition(async () => {
-      try {
-        const result = await serverAction()
+    reactStartTransition(() => {
+      serverAction().then(result => {
         if (result.error) {
           console.error('Server action failed:', result.error)
         }
-      } catch (error) {
+      }).catch(error => {
         console.error('Transition failed:', error)
-      }
+      })
     })
   }
 }

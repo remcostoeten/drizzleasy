@@ -10,7 +10,7 @@ function destroyRecord<T extends TEntity>() {
         const db = getDb()
         const schema = getSchema()
         validateTableName(tableName, schema)
-        return await db.destroy(schema[tableName]).where(eq(schema[tableName].id, id)).returning() as T[]
+        return await db.delete(schema[tableName]).where(eq(schema[tableName].id, id)).returning() as T[]
       })
     }
   }
