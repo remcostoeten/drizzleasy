@@ -1,6 +1,6 @@
 {
-  "name": "@remcostoeten/crud",
-  "version": "1.0.0",
+  "name": "drizzleasy",
+  "version": "0.0.1",
   "description": "CRUD abstraction layer for Next.js with Drizzle ORM",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

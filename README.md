@@ -1,4 +1,4 @@
-# @remcostoeten/crud
+# drizzleasy
 
 Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM.
 
@@ -16,7 +16,7 @@ Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM.
 ## Installation
 
 ```bash
-npm install @remcostoeten/crud
+npm install drizzleasy
 ```
 
 ## Quick Start
@@ -35,7 +35,7 @@ export const db = drizzle(sql, { schema, logger: true })
 
 **After:**
 ```typescript
-import { initializeConnection } from '@remcostoeten/crud'
+import { initializeConnection } from 'drizzleasy'
 export const db = await initializeConnection(process.env.DATABASE_URL!)
 ```
 
@@ -73,7 +73,7 @@ const dbs = await initializeConnection({
 ### CRUD Operations
 
 ```typescript
-import { crud } from '@remcostoeten/crud'
+import { crud } from 'drizzleasy'
 
 type User = {
   id: string
