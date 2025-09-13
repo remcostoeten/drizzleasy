@@ -5,16 +5,18 @@ Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM.
 ## Features
 
 - **One-liner setup** - `initializeConnection(url)` replaces complex Drizzle setup
+- **Auto-detection** - Reads your drizzle.config.ts automatically
+- **Multi-database** - PostgreSQL (Neon, Vercel, Docker), SQLite, Turso
 - **Simple syntax** - Natural operators like `age: '>18'` and `name: '*john*'`
 - **100% type-safe** - Full TypeScript support with IntelliSense
-- **Auto-detection** - Reads your drizzle.config.ts automatically
-- **Multi-database** - PostgreSQL, SQLite, Turso support
 - **Optimistic updates** - Built-in React hooks for smooth UX
+- **Environment switching** - Development/production database configs
+- **Connection caching** - Automatic connection reuse for performance
 
 ## Installation
 
 ```bash
-npm install @remcostoeten/crud drizzle-orm
+npm install @remcostoeten/crud
 ```
 
 ## Quick Start
@@ -34,10 +36,41 @@ export const db = drizzle(sql, { schema, logger: true })
 **After:**
 ```typescript
 import { initializeConnection } from '@remcostoeten/crud'
-export const db = initializeConnection(process.env.DATABASE_URL!)
+export const db = await initializeConnection(process.env.DATABASE_URL!)
 ```
 
-### Simple CRUD Operations
+### Database Support
+
+```typescript
+// PostgreSQL (Neon, Vercel, Supabase)
+const db = await initializeConnection('postgresql://neon.tech/db')
+
+// Local PostgreSQL (Docker)
+const db = await initializeConnection('postgresql://localhost:5432/mydb')
+
+// SQLite (Local file)
+const db = await initializeConnection('file:./dev.db')
+
+// Turso (with auth token)
+const db = await initializeConnection('libsql://my-db.turso.io', {
+  authToken: process.env.TURSO_AUTH_TOKEN
+})
+
+// Environment switching
+const db = await initializeConnection({
+  development: 'file:./dev.db',
+  production: process.env.DATABASE_URL!
+})
+
+// Multiple databases
+const dbs = await initializeConnection({
+  main: process.env.DATABASE_URL!,
+  analytics: process.env.ANALYTICS_URL!,
+  cache: 'file:./cache.db'
+})
+```
+
+### CRUD Operations
 
 ```typescript
 import { crud } from '@remcostoeten/crud'
@@ -64,6 +97,12 @@ await crud.create<User>('users')({
   age: 25,
   status: 'active'
 })
+
+// Update
+await crud.update<User>('users')('user-123', { status: 'inactive' })
+
+// Delete
+await crud.destroy<User>('users')('user-123')
 ```
 
 ## Database Connection
