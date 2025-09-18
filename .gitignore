@@ -107,4 +107,4 @@ temp/
 .turbo
 
 # Bun
-.bun
+.buntmp/
