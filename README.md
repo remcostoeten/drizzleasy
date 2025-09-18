@@ -1,48 +1,28 @@
-# Drizzleasy Monorepo
+  ## [0.1.0] - 18-09-2025
+  ### Added
+  - Engines and `sideEffects` fields to `package.json`
+  - Optional `peerDependencies` for drivers; kept `glob` as a runtime dependency
+  - Made the package MIT
 
-Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM.
+  ### Changed
+  - Migrated to Bun
+  - Migrated to a Turbo monorepo (for future examples and docs)
+  - Rewrote README without LLM
+  - Build now via `tsup` (ESM + CJS + DTS)
 
-## Structure
+  ### Fixed
+  - Tightened SQLite URL detection with env-specific cache keys
+  - Vitest mocks (20/20 tests passing)
 
-```
-├── apps/
-│   ├── drizzleasy/     # Main npm package
-│   ├── docs/          # Fumadocs documentation site
-│   └── examples/      # Next.js example applications
-├── packages/          # Shared packages (if needed)
-└── turbo.json        # Turborepo configuration
-```
+  ### Removed
+  - `execute()` fire function
 
-## Getting Started
+  ---
 
-```bash
-# Install dependencies
-bun install
-
-# Build all packages
-bun run build
-
-# Run tests
-bun run test
-
-# Start development
-bun run dev
-```
-
-## Apps
-
-- **drizzleasy**: Main npm package with CRUD operations
-- **docs**: Documentation site built with Fumadocs
-- **examples**: Next.js example applications
-
-## Development
-
-This monorepo uses [Turborepo](https://turbo.build/) for build orchestration and [Bun](https://bun.sh/) as the package manager.
-
-### Available Scripts
-
-- `bun run build` - Build all packages
-- `bun run dev` - Start development servers
-- `bun run test` - Run tests across all packages
-- `bun run lint` - Lint all packages
-- `bun run clean` - Clean build artifacts
+  ## [0.9.0] - xx-09-2025
+  ### Added
+  - Comprehensive test suite
+  - Smart database driver connection supporting PostgreSQL (local + cloud), SQLite, and Turso libsql
+  - Database initialization for PostgreSQL
+  - `update()` and `destroy()` functions
+  - Initial `query()` and `mutate()` functions
