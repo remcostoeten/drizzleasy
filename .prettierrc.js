@@ -10,10 +10,5 @@ module.exports = {
     arrowParens: 'avoid',
     jsxSingleQuote: true,
     bracketSameLine: false,
-    spaceBeforeFunctionParen: false,
-    jsxBracketSameLine: false,
-    proseWrap: 'always',
-    importOrder: ['^[./]'],
-    importOrderSeparation: true,
-    importOrderSortSpecifiers: true
+    proseWrap: 'always'
 }

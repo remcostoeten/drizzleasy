@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Drizzleasy Example App
 
-## Getting Started
+This example app demonstrates how to use Drizzleasy with the schemas from `examples.mdx`.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. **Install dependencies:**
+   ```bash
+   bun install
+   ```
+
+2. **Set up your database:**
+   Create a `.env.local` file in the root of this app:
+   ```env
+   DATABASE_URL="postgresql://username:password@localhost:5432/drizzleasy_example"
+   ```
+
+3. **Generate and push the schema:**
+   ```bash
+   # Generate migration files
+   bun run db:generate
+   
+   # Push schema to database (recommended for development)
+   bun run db:push
+   
+   # Or run migrations (for production)
+   bun run db:migrate
+   ```
+
+4. **Start the development server:**
+   ```bash
+   bun run dev
+   ```
+
+## Available Scripts
+
+- `bun run dev` - Start development server
+- `bun run build` - Build for production
+- `bun run db:generate` - Generate migration files from schema
+- `bun run db:push` - Push schema changes to database (dev)
+- `bun run db:migrate` - Run migrations (production)
+- `bun run db:studio` - Open Drizzle Studio
+
+## Examples Included
+
+### 1. Todo App (`/todos`)
+- Complete CRUD operations for todos
+- Optimistic updates with `useOptimisticCrud`
+- Server actions with revalidation
+
+### 2. Schema Examples
+- **Todos**: Basic CRUD with priority levels
+- **Users**: User management with email validation
+- **Posts**: Related data with user references
+
+## Database Schema
+
+The app includes three main tables:
+
+```sql
+-- Todos table
+CREATE TABLE todos (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  completed BOOLEAN DEFAULT false,
+  priority TEXT DEFAULT 'medium',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Users table
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  avatar TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Posts table
+CREATE TABLE posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT,
+  author_id TEXT REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Using the Examples
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Visit `http://localhost:3000` to see the main page
+2. Click "Todo App Example" to see the working todo application
+3. The todo app demonstrates:
+   - Creating new todos
+   - Toggling completion status
+   - Deleting todos
+   - Optimistic UI updates
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Next Steps
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add more examples from `examples.mdx`
+- Implement user authentication
+- Add the blog/CRM examples
+- Set up proper error handling
