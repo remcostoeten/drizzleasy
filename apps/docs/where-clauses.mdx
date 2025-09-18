@@ -33,14 +33,12 @@ const read = readFn<User>()
 
 // Simple equality
 const activeUsers = await read('users')
-  .where({ status: 'active' })
-  .execute()
+  .where({ status: 'active' })()
 
 // Multiple conditions (AND)
 const adminUsers = await read('users')
   .where({ status: 'active' })
-  .where({ role: 'admin' })
-  .execute()
+  .where({ role: 'admin' })()
 ```
 
 ## All Operators
@@ -118,8 +116,7 @@ const products = await read('products')
   .where({ price: '<100' })
   .where({ inStock: true })
   .where({ rating: '>=4.0' })
-  .where({ category: ['electronics', 'books'] })
-  .execute()
+  .where({ category: ['electronics', 'books'] })()
 ```
 
 ### User Management
@@ -131,13 +128,11 @@ const read = readFn<User>()
 const admins = await read('users')
   .where({ role: 'admin' })
   .where({ status: 'active' })
-  .where({ createdAt: '>=2024-01-01' })
-  .execute()
+  .where({ createdAt: '>=2024-01-01' })()
 
 // Gmail users
 const gmailUsers = await read('users')
-  .where({ email: '*@gmail.com' })
-  .execute()
+  .where({ email: '*@gmail.com' })()
 ```
 
 ### Blog Search
@@ -155,8 +150,7 @@ const read = readFn<Post>()
 // Published React posts
 const reactPosts = await read('posts')
   .where({ status: 'published' })
-  .where({ title: '*React*' })
-  .execute()
+  .where({ title: '*React*' })()
 ```
 
 ## Type Safety

@@ -44,8 +44,7 @@ export function createFn<T extends TEntity = TEntity>() {
  * // Filter with WHERE
  * const { data: filtered } = await read('users')
  *   .where({ status: 'active' })
- *   .where({ age: '>18' })
- *   .execute()
+ *   .where({ age: '>18' })()
  * ```
  */
 export function readFn<T extends TEntity = TEntity>() {

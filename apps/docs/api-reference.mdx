@@ -49,10 +49,9 @@ crud.read<T>(tableName: string): {
 ```
 
 **Methods:**
-- `()` - Get all records (callable)
+- `()` - Get all records (callable) and executes accumulated WHERE conditions
 - `where(condition)` - Add WHERE condition (chainable)
 - `byId(id)` - Get single record by ID
-- `execute()` - Execute query with WHERE conditions
 
 **Example:**
 ```typescript
@@ -65,8 +64,7 @@ const { data: user } = await crud.read('users').byId('123')
 // Filter with WHERE
 const { data: filtered } = await crud.read('users')
   .where({ status: 'active' })
-  .where({ age: '>18' })
-  .execute()
+  .where({ age: '>18' })()
 ```
 
 #### crud.update()
@@ -135,8 +133,7 @@ const { data: users } = await read('users')()
 
 // Filter with WHERE
 const { data: filtered } = await read('users')
-  .where({ status: 'active' })
-  .execute()
+  .where({ status: 'active' })()
 ```
 
 ### updateFn()

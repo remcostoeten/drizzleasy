@@ -63,9 +63,9 @@ export async function initializeConnection(
       const config = input[env as keyof typeof input]
       
       if (typeof config === 'string') {
-        return createSingleConnection(config, options)
+        return createSingleConnection(config, options, 'env')
       } else if (config && typeof config === 'object') {
-        return createSingleConnection(config.url, { authToken: config.authToken })
+        return createSingleConnection(config.url, { authToken: config.authToken }, 'env')
       }
       
       throw new Error(`No configuration found for environment: ${env}`)
@@ -86,8 +86,8 @@ export async function initializeConnection(
   throw new Error('Invalid connection configuration')
 }
 
-async function createSingleConnection(url: string, options?: ConnectionOptions) {
-  const cacheKey = `${url}:${options?.authToken || ''}`
+async function createSingleConnection(url: string, options?: ConnectionOptions, cacheNamespace: string = 'default') {
+  const cacheKey = `${cacheNamespace}:${url}:${options?.authToken || ''}`
   
   if (connectionCache.has(cacheKey)) {
     return connectionCache.get(cacheKey)
@@ -111,7 +111,7 @@ async function createSingleConnection(url: string, options?: ConnectionOptions) 
     } else {
       connection = await setupPostgres(url, schema)
     }
-  } else if (url.startsWith('file:') || url.endsWith('.db')) {
+  } else if (url.startsWith('file:') || (!url.includes('://') && url.endsWith('.db'))) {
     connection = await setupSqlite(url, schema)
   } else {
     throw new Error(`Unsupported database URL format: ${url}`)

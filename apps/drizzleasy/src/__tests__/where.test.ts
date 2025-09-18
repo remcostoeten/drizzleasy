@@ -1,7 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest'
-import { buildWhereConditions } from '../core/where'
-
-const mockOperators = {
+const mockOperators = vi.hoisted(() => ({
   eq: vi.fn((field, value) => ({ type: 'eq', field, value })),
   gt: vi.fn((field, value) => ({ type: 'gt', field, value })),
   gte: vi.fn((field, value) => ({ type: 'gte', field, value })),
@@ -10,9 +8,14 @@ const mockOperators = {
   ne: vi.fn((field, value) => ({ type: 'ne', field, value })),
   like: vi.fn((field, value) => ({ type: 'like', field, value })),
   inArray: vi.fn((field, value) => ({ type: 'in', field, value }))
-}
+}))
 
-vi.mock('drizzle-orm', () => mockOperators)
+vi.mock('drizzle-orm', () => ({
+  ...mockOperators,
+  and: (...args: any[]) => ({ type: 'and', args })
+}))
+
+import { buildWhereConditions } from '../core/where'
 
 const mockTable = {
   age: 'age_field',
@@ -32,12 +35,12 @@ describe('WHERE Clause Parsing', () => {
 
   test('parses greater than operator', () => {
     buildWhereConditions({ age: '>18' }, mockTable)
-    expect(mockOperators.gt).toHaveBeenCalledWith('age_field', '18')
+    expect(mockOperators.gt).toHaveBeenCalledWith('age_field', 18)
   })
 
   test('parses less than or equal operator', () => {
     buildWhereConditions({ age: '<=65' }, mockTable)
-    expect(mockOperators.lte).toHaveBeenCalledWith('age_field', '65')
+    expect(mockOperators.lte).toHaveBeenCalledWith('age_field', 65)
   })
 
   test('parses not equal operator', () => {
@@ -66,12 +69,13 @@ describe('WHERE Clause Parsing', () => {
   })
 
   test('ignores invalid fields', () => {
-    const result = buildWhereConditions({ invalidField: 'value' }, mockTable)
-    expect(result).toBeUndefined()
+    expect(() => buildWhereConditions({ invalidField: 'value' } as any, mockTable)).toThrow(
+      "Field 'invalidField' not found in table"
+    )
   })
 
   test('handles greater than or equal', () => {
     buildWhereConditions({ age: '>=21' }, mockTable)
-    expect(mockOperators.gte).toHaveBeenCalledWith('age_field', '21')
+    expect(mockOperators.gte).toHaveBeenCalledWith('age_field', 21)
   })
 })

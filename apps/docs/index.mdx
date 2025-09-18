@@ -95,15 +95,14 @@ const { data: users } = await read('users')()
 
 // Simple WHERE conditions
 const { data: activeUsers } = await read('users')
-  .where({ status: 'active' })
-  .execute()
+  .where({ status: 'active' })()
 
 // Advanced filtering
 const { data: results } = await read('users')
   .where({ age: '>18' })              // Greater than 18
   .where({ name: '*john*' })          // Contains 'john'
   .where({ role: ['admin', 'user'] }) // IN array
-  .execute()
+  ()
 
 // Read by ID
 const { data: user } = await read('users').byId('123')
@@ -135,23 +134,23 @@ const read = readFn<Product>()
 const { data: affordableProducts } = await read('products')
   .where({ price: '<100' })        // Less than 100
   .where({ rating: '>=4.0' })      // 4 stars or higher
-  .execute()
+  ()
 
 // String matching
 const { data: searchResults } = await read('products')
   .where({ name: '*laptop*' })     // Contains 'laptop'
   .where({ category: 'electronics*' }) // Starts with 'electronics'
-  .execute()
+  ()
 
 // Array matching (IN operator)
 const { data: categoryProducts } = await read('products')
   .where({ category: ['books', 'electronics', 'clothing'] })
-  .execute()
+  ()
 
 // Not equal
 const { data: availableProducts } = await read('products')
   .where({ category: '!discontinued' }) // Not discontinued
-  .execute()
+  ()
 ```
 
 ## All WHERE Operators

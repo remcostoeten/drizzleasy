@@ -21,7 +21,7 @@ import type { TEntity, TCreateInput, TUpdateInput, TResult, TWhereClause } from 
  *   .where({ status: 'active' })     // Exact match
  *   .where({ age: '>18' })           // Greater than
  *   .where({ name: '*john*' })       // Contains
- *   .execute()
+ *   ()
  * 
  * // Update
  * await crud.update<User>('users')('user-123', { name: 'Jane' })
@@ -89,8 +89,8 @@ const crudBase = {
    *   .where({ status: 'active' })           // Exact match
    *   .where({ age: '>18' })                 // Comparison
    *   .where({ name: '*john*' })             // Contains
-   *   .where({ role: ['admin', 'user'] })    // IN array
-   *   .execute()
+ *   .where({ role: ['admin', 'user'] })    // IN array
+ *   ()
    * ```
    * 
    * @example WHERE operators
@@ -138,36 +138,6 @@ const crudBase = {
       },
       
       /**
-       * Execute the query with all WHERE conditions applied.
-       * 
-       * @returns Promise with array of matching records
-       * 
-       * @example
-       * ```typescript
-       * const { data, error } = await crud.read<User>('users')
-       *   .where({ status: 'active' })
-       *   .where({ age: '>18' })
-       *   .execute()
-       * ```
-       */
-      async execute(): Promise<TResult<T[]>> {
-        return safeExecute(async () => {
-          const db = getDb()
-          const schema = getSchema()
-          validateTableName(tableName, schema)
-          const table = schema[tableName]
-          
-          let query = db.select().from(table)
-          
-          if (whereConditions.length > 0) {
-            query = query.where(and(...whereConditions))
-          }
-          
-          return await query
-        })
-      },
-      
-      /**
        * Find a single record by its ID.
        * 
        * @param id - The ID of the record to find
@@ -199,7 +169,7 @@ const crudBase = {
       }
     }
     
-    // Make it callable directly (returns all records)
+    // Make it callable directly (applies accumulated where conditions if any)
     const callable = async (): Promise<TResult<T[]>> => {
       return safeExecute(async () => {
         const db = getDb()
@@ -207,7 +177,11 @@ const crudBase = {
         validateTableName(tableName, schema)
         const table = schema[tableName]
         
-        return await db.select().from(table)
+        let query = db.select().from(table)
+        if (whereConditions.length > 0) {
+          query = query.where(and(...whereConditions))
+        }
+        return await query
       })
     }
     

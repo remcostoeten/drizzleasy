@@ -1,0 +1,48 @@
+---
+title: Methods
+description: Concise list of available methods and options in drizzleasy.
+keywords: [methods, api, overview]
+---
+
+## Core
+
+- crud.create(table)(data) → Promise<TResult<T[]>>
+- crud.read(table) → callable
+  - () → Promise<TResult<T[]>>
+  - where(condition) → chainable
+  - byId(id) → Promise<TResult<T | null>>
+- crud.update(table)(id, data) → Promise<TResult<T[]>>
+- crud.destroy(table)(id) → Promise<TResult<T[]>>
+
+## Factories
+
+- createFn<T>() → (table) => create
+- readFn<T>() → (table) => read (with where/byId/())
+- updateFn<T>() → (table) => update
+- destroyFn<T>() → (table) => destroy
+
+## Connection
+
+- initializeConnection(input, options?) → Promise<any>
+  - input: string URL | { development?, production?, test? } | { [name]: url | { url, authToken? } }
+  - options: { authToken? } (Turso/libsql)
+  - Providers: PostgreSQL (cloud/local), SQLite (file: or .db path), Turso (libsql:// + authToken)
+
+## Client (React)
+
+- useOptimisticCrud(initialData) → { data, isPending, optimisticCreate }
+- withTransition(serverAction) → () => void
+
+## WHERE conditions
+
+- Equality: { field: value }
+- Not equal: { field: '!value' }
+- Comparisons: { n: '>1' | '>=1' | '<1' | '<=1' }
+- Patterns: { s: '*contains*' | 'prefix*' | '*suffix' }
+- IN arrays: { field: ['a','b'] }
+
+## Result and inputs
+
+- TResult<T> = { data?: T; error?: Error }
+- TCreateInput<T>
+- TUpdateInput<T>

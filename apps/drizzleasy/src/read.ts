@@ -21,8 +21,7 @@ import type { TEntity, TResult, TWhereClause } from './types'
  * 
  * // Filter with WHERE
  * const { data: filtered } = await readUser('users')
- *   .where({ status: 'active' })
- *   .execute()
+ *   .where({ status: 'active' })()
  * ```
  */
 function read<T extends TEntity>() {
@@ -44,23 +43,6 @@ function read<T extends TEntity>() {
         return queryBuilder
       },
       
-      async execute(): Promise<TResult<T[]>> {
-        return safeExecute(async () => {
-          const db = getDb()
-          const schema = getSchema()
-          validateTableName(tableName, schema)
-          const table = schema[tableName]
-          
-          let query = db.select().from(table)
-          
-          if (whereConditions.length > 0) {
-            query = query.where(and(...whereConditions))
-          }
-          
-          return await query
-        })
-      },
-      
       byId(id: string | number): Promise<TResult<T | null>> {
         return safeExecute(async () => {
           const db = getDb()
@@ -74,7 +56,7 @@ function read<T extends TEntity>() {
       }
     }
     
-    // Make it callable directly (returns all records)
+    // Make it callable directly (applies accumulated where conditions if any)
     const callable = async (): Promise<TResult<T[]>> => {
       return safeExecute(async () => {
         const db = getDb()
@@ -82,7 +64,11 @@ function read<T extends TEntity>() {
         validateTableName(tableName, schema)
         const table = schema[tableName]
         
-        return await db.select().from(table)
+        let query = db.select().from(table)
+        if (whereConditions.length > 0) {
+          query = query.where(and(...whereConditions))
+        }
+        return await query
       })
     }
     
