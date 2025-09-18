@@ -1,0 +1,1019 @@
+#!/usr/bin/env python3
+"""
+Drizzleasy Release Management CLI
+Interactive tool for managing releases, versions, and documentation
+"""
+
+import os
+import sys
+import json
+import subprocess
+import re
+import argparse
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+import urllib.request
+import urllib.parse
+
+# Load .env file if it exists
+def load_env():
+    """Load environment variables from .env file"""
+    dotenv_path = Path(".env")
+    if dotenv_path.exists():
+        with open(dotenv_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("#") or not line or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                # Remove quotes if present
+                value = value.strip('"\'')
+                os.environ[key.strip()] = value.strip()
+
+# Load environment variables at startup
+load_env()
+
+# Color codes for terminal output
+class Colors:
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+    
+    # Regular colors
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    
+    # Bright colors
+    BRIGHT_RED = '\033[91m'
+    BRIGHT_GREEN = '\033[92m'
+    BRIGHT_YELLOW = '\033[93m'
+    BRIGHT_BLUE = '\033[94m'
+    BRIGHT_MAGENTA = '\033[95m'
+    BRIGHT_CYAN = '\033[96m'
+    BRIGHT_WHITE = '\033[97m'
+
+def print_colored(text: str, color: str = Colors.WHITE, bold: bool = False, dim: bool = False) -> None:
+    """Print colored text to terminal"""
+    style = ""
+    if bold:
+        style += Colors.BOLD
+    if dim:
+        style += Colors.DIM
+    print(f"{style}{color}{text}{Colors.RESET}")
+
+def print_header() -> None:
+    """Print the colorized header"""
+    version = get_current_version()
+    print()
+    print_colored("╔══════════════════════════════════════════════════════════╗", Colors.CYAN, bold=True)
+    print_colored("║                                                          ║", Colors.CYAN, bold=True)
+    print_colored(f"║  🚀 Drizzleasy Release Management {version:<20} ║", Colors.BRIGHT_CYAN, bold=True)
+    print_colored("║                                                          ║", Colors.CYAN, bold=True)
+    print_colored("╚══════════════════════════════════════════════════════════╝", Colors.CYAN, bold=True)
+    print()
+
+def get_current_version() -> str:
+    """Get current version from package.json"""
+    try:
+        package_path = Path("apps/drizzleasy/package.json")
+        if not package_path.exists():
+            package_path = Path("package.json")
+        
+        with open(package_path, 'r') as f:
+            package_data = json.load(f)
+            return package_data.get('version', '0.0.0')
+    except Exception:
+        return "0.0.0"
+
+def run_command(cmd: str, cwd: Optional[str] = None, capture_output: bool = True) -> Tuple[bool, str]:
+    """Run a shell command and return success status and output"""
+    try:
+        result = subprocess.run(
+            cmd, 
+            shell=True, 
+            cwd=cwd,
+            capture_output=capture_output,
+            text=True
+        )
+        if capture_output:
+            return result.returncode == 0, result.stdout.strip() if result.stdout else result.stderr.strip()
+        else:
+            return result.returncode == 0, ""
+    except Exception as e:
+        return False, str(e)
+
+def open_url(url: str) -> None:
+    """Open URL in default browser"""
+    try:
+        if sys.platform == "darwin":  # macOS
+            subprocess.run(["open", url])
+        elif sys.platform == "linux":  # Linux
+            subprocess.run(["xdg-open", url])
+        elif sys.platform == "win32":  # Windows
+            subprocess.run(["start", url], shell=True)
+        else:
+            print_colored(f"Please open: {url}", Colors.YELLOW)
+    except Exception:
+        print_colored(f"Please open: {url}", Colors.YELLOW)
+
+def get_user_input(prompt: str, color: str = Colors.WHITE) -> str:
+    """Get user input with colored prompt"""
+    try:
+        return input(f"{color}{prompt}{Colors.RESET}")
+    except KeyboardInterrupt:
+        print_colored("\n\n👋 Goodbye!", Colors.YELLOW)
+        sys.exit(0)
+
+def wait_for_key() -> None:
+    """Wait for user to press any key"""
+    print_colored("\nPress any key to continue...", Colors.DIM)
+    try:
+        input()
+    except KeyboardInterrupt:
+        print_colored("\n\n👋 Goodbye!", Colors.YELLOW)
+        sys.exit(0)
+
+def show_menu() -> None:
+    """Display the main menu"""
+    print_colored("📋 Available Options:", Colors.BRIGHT_YELLOW, bold=True)
+    print()
+    
+    options = [
+        ("1", "View current version", "📦"),
+        ("2", "View Drizzleasy on GitHub", "🐙"),
+        ("3", "View Drizzleasy on npm", "📚"),
+        ("4", "Update version", "🔢"),
+        ("5", "Publish new release", "🚀"),
+        ("6", "Release new docs", "📖"),
+        ("7", "Revert npm version and tag", "↩️"),
+    ]
+    
+    for key, desc, emoji in options:
+        print_colored(f"  [{key}] {emoji} {desc}", Colors.BRIGHT_WHITE)
+    
+    print()
+    print_colored("Navigation:", Colors.DIM)
+    print_colored("  • Press number key + Enter to select", Colors.DIM)
+    print_colored("  • Backspace/Escape: Return to menu", Colors.DIM)
+    print_colored("  • Ctrl+C: Exit", Colors.DIM)
+    print()
+
+def view_current_version() -> None:
+    """Option 1: View current version"""
+    print_colored("📦 Current Version Information", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    version = get_current_version()
+    print_colored(f"Current version: {version}", Colors.BRIGHT_GREEN, bold=True)
+    
+    # Try to get last commit info
+    success, output = run_command("git log -1 --pretty=format:'%h - %s (%cr)'")
+    if success:
+        print_colored(f"Last commit: {output}", Colors.WHITE)
+    
+    # Check if there are uncommitted changes
+    success, output = run_command("git status --porcelain")
+    if success:
+        if output.strip():
+            print_colored("⚠️  Uncommitted changes detected", Colors.YELLOW)
+        else:
+            print_colored("✅ Working directory clean", Colors.GREEN)
+    
+    wait_for_key()
+
+def view_github() -> None:
+    """Option 2: View Drizzleasy on GitHub"""
+    print_colored("🐙 Opening GitHub Repository", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    url = "https://github.com/remcostoeten/drizzleasy"
+    print_colored(f"Opening: {url}", Colors.CYAN)
+    open_url(url)
+    
+    wait_for_key()
+
+def view_npm() -> None:
+    """Option 3: View Drizzleasy on npm"""
+    print_colored("📚 Opening npm Package", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    url = "https://www.npmjs.com/package/@remcostoeten/drizzleasy"
+    print_colored(f"Opening: {url}", Colors.CYAN)
+    open_url(url)
+    
+    wait_for_key()
+
+def increment_version(version: str, release_type: str) -> str:
+    """Increment version based on release type"""
+    parts = version.split('.')
+    major, minor, patch = int(parts[0]), int(parts[1]), int(parts[2])
+    
+    if release_type == "major":
+        return f"{major + 1}.0.0"
+    elif release_type == "minor":
+        return f"{major}.{minor + 1}.0"
+    elif release_type == "patch":
+        return f"{major}.{minor}.{patch + 1}"
+    else:
+        return version
+
+def get_gemini_model() -> str:
+    """Get Gemini model selection from environment or user input"""
+    
+    # Check environment variable first
+    env_model = os.getenv('GEMINI_MODEL')
+    if env_model:
+        print_colored(f"Using model from GEMINI_MODEL: {env_model}", Colors.DIM)
+        return env_model
+    
+    # Available Gemini models (ordered by preference/capability)
+    models = {
+        "1": {
+            "name": "gemini-2.5-pro",
+            "desc": "Gemini 2.5 Pro - Advanced reasoning, complex tasks, 1M tokens"
+        },
+        "2": {
+            "name": "gemini-2.5-flash",
+            "desc": "Gemini 2.5 Flash - Fast, efficient, 1M tokens"
+        },
+        "3": {
+            "name": "gemini-2.0-flash-exp",
+            "desc": "Gemini 2.0 Flash (Experimental) - Latest, fast, multimodal"
+        },
+        "4": {
+            "name": "gemini-1.5-pro-002",
+            "desc": "Gemini 1.5 Pro (Latest) - Best reasoning, large context"
+        },
+        "5": {
+            "name": "gemini-1.5-pro",
+            "desc": "Gemini 1.5 Pro - Excellent reasoning, 2M token context"
+        },
+        "6": {
+            "name": "gemini-1.5-flash-002",
+            "desc": "Gemini 1.5 Flash (Latest) - Fast and efficient"
+        },
+        "7": {
+            "name": "gemini-1.5-flash",
+            "desc": "Gemini 1.5 Flash - Fast and efficient"
+        }
+    }
+    
+    print_colored("🤖 Select Gemini Model:", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    for key, model_info in models.items():
+        print_colored(f"  [{key}] {model_info['name']}", Colors.BRIGHT_WHITE)
+        print_colored(f"      {model_info['desc']}", Colors.DIM)
+    
+    print()
+    print_colored("💡 Tip: Set GEMINI_MODEL env var to skip this prompt", Colors.DIM)
+    print()
+    
+    choice = get_user_input("Select model (1-7, default=2 for best speed): ", Colors.BRIGHT_CYAN)
+    
+    if not choice:
+        choice = "2"  # Default to 2.5 Flash for best speed/quality balance
+    
+    if choice in models:
+        selected_model = models[choice]["name"]
+        print_colored(f"Selected: {selected_model}", Colors.GREEN)
+        return selected_model
+    else:
+        print_colored("Invalid choice, using default (gemini-2.5-flash)", Colors.YELLOW)
+        return "gemini-2.5-flash"
+
+def update_changelog_with_ai(new_version: str) -> bool:
+    """Update changelog using Gemini AI with fallback key support"""
+    print_colored("🤖 Attempting to update changelog with AI...", Colors.CYAN)
+    
+    # Check for API keys
+    keys = ["GEMINI_KEY", "GEMINI_KEY_SECONDARY", "GEMINI_KEY_FALLBACK"]
+    available_keys = []
+    
+    for key in keys:
+        if os.getenv(key):
+            available_keys.append((key, os.getenv(key)))
+    
+    if not available_keys:
+        missing_keys = ", ".join(keys)
+        print_colored(f"Keys {missing_keys} are not defined, so skipped updating Changelog.", Colors.YELLOW)
+        return False
+    
+    print_colored(f"Found {len(available_keys)} available API key(s)", Colors.DIM)
+    
+    try:
+        # Get git diff and recent commits
+        success, git_diff = run_command("git diff HEAD~10..HEAD --name-status")
+        if not success:
+            git_diff = "No changes found"
+        
+        success, commits = run_command("git log --oneline -15 --pretty=format:'%s'")
+        if not success:
+            commits = "No recent commits found"
+        
+        success, staged_changes = run_command("git diff --cached --name-status")
+        if not success:
+            staged_changes = "No staged changes"
+        
+        # Read current changelog to understand format
+        changelog_path = Path("CHANGELOG.md")
+        current_changelog = ""
+        if changelog_path.exists():
+            with open(changelog_path, 'r', encoding='utf-8') as f:
+                current_changelog = f.read()
+        
+        # Prepare Gemini request
+        system_prompt = """You are a technical changelog generator. Your job is to create a new changelog entry based on git commits and changes.
+
+CRITICAL REQUIREMENTS:
+1. Follow the EXACT format of the existing changelog - no emojis, no fluff, pure technical content
+2. Use these sections ONLY: Added, Changed, Fixed, Removed
+3. Each bullet point starts with "- " (dash + space)
+4. Be concise and technical - focus on what changed, not why
+5. Use backticks for code/technical terms
+6. Date format: YYYY-MM-DD
+7. No marketing language, no excitement, just facts
+
+STYLE RULES:
+- "Added" = new features, new files, new dependencies
+- "Changed" = modifications to existing functionality
+- "Fixed" = bug fixes, corrections
+- "Removed" = deleted features, files, or functionality
+- Use present tense for technical accuracy
+- Keep entries short and specific
+- Group related changes together
+
+OUTPUT FORMAT:
+```
+## [VERSION] - DATE
+### Added
+- Item 1
+- Item 2
+
+### Changed
+- Item 1
+
+### Fixed
+- Item 1
+
+### Removed
+- Item 1
+```
+
+Only include sections that have changes. If no changes for a section, omit it entirely."""
+
+        user_prompt = f"""Create a changelog entry for version {new_version} based on these changes:
+
+CURRENT CHANGELOG FORMAT:
+```
+{current_changelog[:500]}...
+```
+
+GIT COMMITS:
+```
+{commits}
+```
+
+GIT DIFF (files changed):
+```
+{git_diff}
+```
+
+STAGED CHANGES:
+```
+{staged_changes}
+```
+
+Generate ONLY the new changelog entry for version {new_version} with today's date ({datetime.now().strftime('%Y-%m-%d')}). Match the existing style exactly - no emojis, no marketing language, just technical facts."""
+
+        # Make Gemini API request with fallback keys
+        import json
+        import urllib.request
+        import urllib.parse
+        from datetime import datetime
+        
+        # Get model selection
+        model = get_gemini_model()
+        
+        # Try each available key until one works
+        generated_content = None
+        used_key = None
+        
+        for key_name, api_key in available_keys:
+            print_colored(f"Trying {key_name}...", Colors.DIM)
+            
+            try:
+                # Prepare request
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                
+                data = {
+                    "contents": [{
+                        "parts": [{
+                            "text": f"{system_prompt}\n\n{user_prompt}"
+                        }]
+                    }],
+                    "generationConfig": {
+                        "temperature": 0.1,
+                        "topK": 1,
+                        "topP": 0.8,
+                        "maxOutputTokens": 1000,
+                    }
+                }
+                
+                # Make request
+                req = urllib.request.Request(
+                    url,
+                    data=json.dumps(data).encode('utf-8'),
+                    headers={'Content-Type': 'application/json'}
+                )
+                
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    result = json.loads(response.read().decode('utf-8'))
+                
+                # If we get here, the request was successful
+                used_key = key_name
+                print_colored(f"✅ Success with {key_name}", Colors.GREEN)
+                break
+                
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode('utf-8') if hasattr(e, 'read') else str(e)
+                if e.code == 429 or "quota" in error_body.lower() or "rate" in error_body.lower():
+                    print_colored(f"⚠️  Rate limited on {key_name}, trying next key...", Colors.YELLOW)
+                    continue
+                else:
+                    print_colored(f"❌ API error on {key_name}: {error_body[:100]}...", Colors.RED)
+                    continue
+            except Exception as e:
+                print_colored(f"❌ Connection error on {key_name}: {str(e)[:100]}...", Colors.RED)
+                continue
+        
+        if not used_key:
+            print_colored("❌ All API keys failed or were rate limited", Colors.RED)
+            return False
+        
+        if 'candidates' in result and len(result['candidates']) > 0:
+            candidate = result['candidates'][0]
+            
+            # Check finish reason first
+            finish_reason = candidate.get('finishReason', 'UNKNOWN')
+            if finish_reason == 'MAX_TOKENS':
+                generated_content = f"Response truncated (hit token limit: {finish_reason})"
+            elif finish_reason == 'SAFETY':
+                generated_content = f"Response blocked by safety filters: {finish_reason}"
+            elif finish_reason == 'STOP':
+                # Normal completion, try to extract text
+                if 'content' in candidate and 'parts' in candidate['content'] and len(candidate['content']['parts']) > 0:
+                    if 'text' in candidate['content']['parts'][0]:
+                        generated_content = candidate['content']['parts'][0]['text'].strip()
+                    else:
+                        generated_content = "No text in response content"
+                elif 'parts' in candidate and len(candidate['parts']) > 0:
+                    if 'text' in candidate['parts'][0]:
+                        generated_content = candidate['parts'][0]['text'].strip()
+                    else:
+                        generated_content = "No text in response parts"
+                else:
+                    generated_content = f"No text found (finish reason: {finish_reason})"
+            else:
+                generated_content = f"Unexpected finish reason: {finish_reason}"
+            
+            # Clean up the response (remove markdown code blocks if present)
+            if generated_content.startswith('```'):
+                lines = generated_content.split('\n')
+                generated_content = '\n'.join(lines[1:-1])
+            
+            # Update changelog
+            if changelog_path.exists():
+                with open(changelog_path, 'r', encoding='utf-8') as f:
+                    current_content = f.read()
+                
+                # Insert new entry at the top (with proper spacing)
+                new_content = generated_content + "\n\n" + current_content
+                
+                with open(changelog_path, 'w', encoding='utf-8') as f:
+                    f.write(new_content)
+                
+                print_colored("✅ Changelog updated with AI-generated content", Colors.GREEN)
+                return True
+            else:
+                # Create new changelog
+                with open(changelog_path, 'w', encoding='utf-8') as f:
+                    f.write(generated_content + "\n")
+                
+                print_colored("✅ New changelog created with AI-generated content", Colors.GREEN)
+                return True
+        else:
+            print_colored("⚠️  No content generated by AI", Colors.YELLOW)
+            return False
+        
+    except Exception as e:
+        print_colored(f"Failed to update changelog: {e}", Colors.RED)
+        return False
+
+def find_and_replace_version(old_version: str, new_version: str) -> List[str]:
+    """Find and replace version across all relevant files"""
+    updated_files = []
+    
+    # Files that should contain version numbers
+    version_files = [
+        "apps/drizzleasy/package.json",
+        "package.json", 
+        "README.md",
+        "CHANGELOG.md",
+        "apps/docs/package.json",
+        "apps/examples/package.json"
+    ]
+    
+    # Patterns to search for
+    patterns = [
+        (f'"version": "{old_version}"', f'"version": "{new_version}"'),  # package.json
+        (f'v{old_version}', f'v{new_version}'),  # README badges, tags
+        (f'@{old_version}', f'@{new_version}'),  # npm install commands
+        (f'## [{old_version}]', f'## [{new_version}]'),  # CHANGELOG headers
+        (f'drizzleasy-{old_version}', f'drizzleasy-{new_version}'),  # General references
+    ]
+    
+    for file_path in version_files:
+        path = Path(file_path)
+        if not path.exists():
+            continue
+            
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            original_content = content
+            
+            # Apply all patterns
+            for old_pattern, new_pattern in patterns:
+                content = content.replace(old_pattern, new_pattern)
+            
+            # Only write if changes were made
+            if content != original_content:
+                with open(path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                updated_files.append(str(path))
+                
+        except Exception as e:
+            print_colored(f"⚠️  Failed to update {path}: {e}", Colors.YELLOW)
+    
+    return updated_files
+
+def update_version() -> None:
+    """Option 4: Update version"""
+    print_colored("🔢 Update Version", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    current_version = get_current_version()
+    print_colored(f"Current version: {current_version}", Colors.WHITE)
+    print()
+    
+    print_colored("Select release type:", Colors.BRIGHT_YELLOW)
+    print_colored("  [1] 🔴 major → increment first number, reset minor/patch", Colors.WHITE)
+    print_colored("  [2] 🟡 minor → increment minor number", Colors.WHITE)
+    print_colored("  [3] 🟢 patch → increment patch number", Colors.WHITE)
+    print()
+    
+    choice = get_user_input("Enter choice (1-3): ", Colors.BRIGHT_CYAN)
+    
+    release_types = {"1": "major", "2": "minor", "3": "patch"}
+    if choice not in release_types:
+        print_colored("❌ Invalid choice", Colors.RED)
+        wait_for_key()
+        return
+    
+    release_type = release_types[choice]
+    new_version = increment_version(current_version, release_type)
+    
+    print()
+    print_colored(f"New version will be: {new_version}", Colors.BRIGHT_GREEN, bold=True)
+    print_colored("This will update version across ALL project files", Colors.YELLOW)
+    print()
+    
+    confirm = get_user_input("Proceed? (y/N): ", Colors.YELLOW)
+    if confirm.lower() != 'y':
+        print_colored("❌ Cancelled", Colors.YELLOW)
+        wait_for_key()
+        return
+    
+    # Project-wide version update
+    print_colored("🔍 Searching and replacing version across project...", Colors.CYAN)
+    
+    try:
+        updated_files = find_and_replace_version(current_version, new_version)
+        
+        if updated_files:
+            print_colored("✅ Updated files:", Colors.GREEN)
+            for file_path in updated_files:
+                print_colored(f"  • {file_path}", Colors.WHITE)
+        else:
+            print_colored("⚠️  No files were updated", Colors.YELLOW)
+        
+        # Try to update changelog with AI
+        update_changelog_with_ai(new_version)
+        
+        # Stage changes for git
+        print_colored("📝 Staging changes for git...", Colors.CYAN)
+        success, _ = run_command("git add .")
+        if success:
+            print_colored("✅ Changes staged", Colors.GREEN)
+        
+    except Exception as e:
+        print_colored(f"❌ Failed to update version: {e}", Colors.RED)
+    
+    wait_for_key()
+
+def publish_release() -> None:
+    """Option 5: Publish new release"""
+    print_colored("🚀 Publish New Release", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    # Ask for dry run or actual
+    print_colored("Select release mode:", Colors.BRIGHT_YELLOW)
+    print_colored("  [1] 🧪 Dry run (test without publishing)", Colors.WHITE)
+    print_colored("  [2] 🚀 Actual release (publish to npm)", Colors.WHITE)
+    print()
+    
+    choice = get_user_input("Enter choice (1-2): ", Colors.BRIGHT_CYAN)
+    
+    if choice not in ["1", "2"]:
+        print_colored("❌ Invalid choice", Colors.RED)
+        wait_for_key()
+        return
+    
+    is_dry_run = choice == "1"
+    
+    # Check current branch
+    print_colored("🔍 Checking current branch...", Colors.CYAN)
+    success, current_branch = run_command("git branch --show-current")
+    if success:
+        if current_branch.strip() not in ["master", "main"]:
+            print_colored(f"⚠️  Currently on branch: {current_branch}", Colors.YELLOW)
+            print_colored("🚨 Releases should typically be made from master/main branch", Colors.YELLOW)
+            confirm = get_user_input("Continue anyway? (y/N): ", Colors.YELLOW)
+            if confirm.lower() != 'y':
+                print_colored("❌ Release cancelled", Colors.RED)
+                wait_for_key()
+                return
+        else:
+            print_colored(f"✅ On {current_branch} branch", Colors.GREEN)
+    
+    # Check for uncommitted changes
+    success, status = run_command("git status --porcelain")
+    if success and status.strip():
+        print_colored("⚠️  Uncommitted changes detected:", Colors.YELLOW)
+        print_colored(status, Colors.DIM)
+        confirm = get_user_input("Continue with uncommitted changes? (y/N): ", Colors.YELLOW)
+        if confirm.lower() != 'y':
+            print_colored("❌ Release cancelled", Colors.RED)
+            wait_for_key()
+            return
+    else:
+        print_colored("✅ Working directory clean", Colors.GREEN)
+
+    print()
+    print_colored("🧪 Running tests..." if is_dry_run else "🚀 Starting release process...", Colors.CYAN)
+    print()
+    
+    # Run tests
+    print_colored("Running tests...", Colors.CYAN)
+    success, output = run_command("bun run test", capture_output=False)
+    
+    if not success:
+        print_colored("❌ Tests failed! Aborting release.", Colors.RED)
+        wait_for_key()
+        return
+    
+    print_colored("✅ Tests passed!", Colors.GREEN)
+    
+    if is_dry_run:
+        print_colored("🧪 Dry run completed successfully!", Colors.BRIGHT_GREEN, bold=True)
+        wait_for_key()
+        return
+    
+    # Update version (prompt for version type)
+    print_colored("📦 Version update required for release...", Colors.CYAN)
+    print()
+    
+    current_version = get_current_version()
+    print_colored(f"Current version: {current_version}", Colors.WHITE)
+    print_colored("Select release type:", Colors.BRIGHT_YELLOW)
+    print_colored("  [1] 🔴 major → increment first number, reset minor/patch", Colors.WHITE)
+    print_colored("  [2] 🟡 minor → increment minor number", Colors.WHITE)
+    print_colored("  [3] 🟢 patch → increment patch number", Colors.WHITE)
+    print()
+    
+    version_choice = get_user_input("Enter choice (1-3): ", Colors.BRIGHT_CYAN)
+    release_types = {"1": "major", "2": "minor", "3": "patch"}
+    
+    if version_choice not in release_types:
+        print_colored("❌ Invalid choice, aborting release", Colors.RED)
+        wait_for_key()
+        return
+    
+    release_type = release_types[version_choice]
+    new_version = increment_version(current_version, release_type)
+    
+    print()
+    print_colored(f"Will update to: {new_version}", Colors.BRIGHT_GREEN, bold=True)
+    
+    # Check if version already exists on NPM
+    print_colored("🔍 Checking if version exists on NPM...", Colors.CYAN)
+    success, output = run_command(f"npm view @remcostoeten/drizzleasy@{new_version} version")
+    if success and output.strip():
+        print_colored(f"❌ Version {new_version} already exists on NPM!", Colors.RED)
+        print_colored("Please choose a different version or unpublish the existing one.", Colors.YELLOW)
+        wait_for_key()
+        return
+    else:
+        print_colored(f"✅ Version {new_version} is available on NPM", Colors.GREEN)
+    
+    # Update version across all files
+    print_colored("🔍 Updating version across project...", Colors.CYAN)
+    updated_files = find_and_replace_version(current_version, new_version)
+    
+    if updated_files:
+        print_colored("✅ Updated files:", Colors.GREEN)
+        for file_path in updated_files:
+            print_colored(f"  • {file_path}", Colors.WHITE)
+    
+    # Commit changes before creating tag
+    print_colored("📝 Committing version updates...", Colors.CYAN)
+    success, _ = run_command("git add .")
+    if success:
+        commit_msg = f"Release v{new_version}"
+        success, _ = run_command(f'git commit -m "{commit_msg}"')
+        if success:
+            print_colored("✅ Changes committed", Colors.GREEN)
+        else:
+            print_colored("⚠️  Commit failed, but continuing...", Colors.YELLOW)
+    
+    # Create git tag
+    tag_name = f"v{new_version}"
+    
+    print_colored(f"Creating tag {tag_name}...", Colors.CYAN)
+    success, _ = run_command(f"git tag {tag_name}")
+    
+    if success:
+        print_colored("✅ Tag created!", Colors.GREEN)
+        
+        # Push tag
+        print_colored("Pushing tag...", Colors.CYAN)
+        success, _ = run_command(f"git push origin {tag_name}")
+        
+        if success:
+            print_colored("✅ Release triggered! Check GitHub Actions for progress.", Colors.BRIGHT_GREEN, bold=True)
+        else:
+            print_colored("⚠️  Tag created but push failed. Push manually.", Colors.YELLOW)
+    else:
+        print_colored("❌ Failed to create tag", Colors.RED)
+    
+    wait_for_key()
+
+def release_docs() -> None:
+    """Option 6: Release new docs"""
+    print_colored("📖 Release New Docs", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    docs_path = Path("apps/docs")
+    if not docs_path.exists():
+        print_colored("❌ apps/docs directory not found", Colors.RED)
+        wait_for_key()
+        return
+    
+    # Check for uncommitted changes
+    success, output = run_command("git status --porcelain apps/docs")
+    
+    if success and output.strip():
+        print_colored("📝 Uncommitted changes found in apps/docs", Colors.YELLOW)
+        success, _ = run_command("git add apps/docs/*")
+        
+        if success:
+            commit_msg = get_user_input("Enter commit message: ", Colors.BRIGHT_CYAN)
+            if commit_msg:
+                run_command(f'git commit -m "{commit_msg}"')
+                print_colored("✅ Changes committed", Colors.GREEN)
+    
+    # Build docs
+    print_colored("Building docs...", Colors.CYAN)
+    success, output = run_command("bun run build", cwd="apps/docs")
+    
+    if not success:
+        print_colored(f"❌ Build failed: {output}", Colors.RED)
+        wait_for_key()
+        return
+    
+    print_colored("✅ Build successful!", Colors.GREEN)
+    
+    # Deploy to Vercel
+    print_colored("Deploying to Vercel...", Colors.CYAN)
+    success, output = run_command("vercel deploy --prod", cwd="apps/docs")
+    
+    if success:
+        print_colored("✅ Docs deployed successfully!", Colors.BRIGHT_GREEN, bold=True)
+        if "https://" in output:
+            url = output.split("https://")[1].split()[0]
+            print_colored(f"🌐 URL: https://{url}", Colors.BRIGHT_CYAN)
+    else:
+        print_colored(f"❌ Deployment failed: {output}", Colors.RED)
+    
+    wait_for_key()
+
+def revert_version() -> None:
+    """Option 7: Revert npm version and tag"""
+    print_colored("↩️  Revert Version and Tag", Colors.BRIGHT_BLUE, bold=True)
+    print()
+    
+    current_version = get_current_version()
+    print_colored(f"Current version: {current_version}", Colors.WHITE)
+    
+    # Get recent tags
+    success, tags = run_command("git tag --sort=-version:refname | head -10")
+    if success and tags:
+        print_colored("Recent tags:", Colors.YELLOW)
+        tag_list = [tag.strip() for tag in tags.split('\n') if tag.strip()]
+        for i, tag in enumerate(tag_list, 1):
+            print_colored(f"  [{i}] {tag}", Colors.WHITE)
+    else:
+        print_colored("❌ No tags found", Colors.RED)
+        wait_for_key()
+        return
+    
+    print()
+    print_colored("Options:", Colors.BRIGHT_YELLOW)
+    print_colored("  • Enter tag name (e.g., v0.1.0)", Colors.WHITE)
+    print_colored("  • Enter number from list above", Colors.WHITE)
+    print()
+    
+    choice = get_user_input("Enter tag or number: ", Colors.BRIGHT_CYAN)
+    
+    if not choice:
+        print_colored("❌ No selection made", Colors.RED)
+        wait_for_key()
+        return
+    
+    # Handle numeric selection
+    if choice.isdigit():
+        idx = int(choice) - 1
+        if 0 <= idx < len(tag_list):
+            tag_to_revert = tag_list[idx]
+        else:
+            print_colored("❌ Invalid selection", Colors.RED)
+            wait_for_key()
+            return
+    else:
+        tag_to_revert = choice if choice.startswith('v') else f"v{choice}"
+    
+    # Extract version from tag
+    revert_to_version = tag_to_revert.lstrip('v')
+    
+    print()
+    print_colored(f"⚠️  This will:", Colors.BRIGHT_RED, bold=True)
+    print_colored(f"   • Delete tag {tag_to_revert} locally and remotely", Colors.RED)
+    print_colored(f"   • Revert ALL files from v{current_version} → v{revert_to_version}", Colors.RED)
+    print_colored(f"   • Stage changes for git commit", Colors.RED)
+    print()
+    
+    confirm = get_user_input("Are you sure? (y/N): ", Colors.YELLOW)
+    
+    if confirm.lower() != 'y':
+        print_colored("❌ Cancelled", Colors.YELLOW)
+        wait_for_key()
+        return
+    
+    try:
+        # Step 1: Revert version numbers across all files
+        print_colored("🔄 Reverting version numbers across project...", Colors.CYAN)
+        updated_files = find_and_replace_version(current_version, revert_to_version)
+        
+        if updated_files:
+            print_colored("✅ Reverted files:", Colors.GREEN)
+            for file_path in updated_files:
+                print_colored(f"  • {file_path}", Colors.WHITE)
+        
+        # Step 2: Delete local tag
+        print_colored(f"🗑️  Deleting local tag {tag_to_revert}...", Colors.CYAN)
+        success, _ = run_command(f"git tag -d {tag_to_revert}")
+        if success:
+            print_colored(f"✅ Deleted local tag {tag_to_revert}", Colors.GREEN)
+            
+            # Step 3: Delete remote tag
+            print_colored(f"🌐 Deleting remote tag {tag_to_revert}...", Colors.CYAN)
+            success, output = run_command(f"git push origin :refs/tags/{tag_to_revert}")
+            if success:
+                print_colored(f"✅ Deleted remote tag {tag_to_revert}", Colors.GREEN)
+            else:
+                print_colored(f"⚠️  Failed to delete remote tag: {output}", Colors.YELLOW)
+        else:
+            print_colored(f"⚠️  Tag {tag_to_revert} not found locally", Colors.YELLOW)
+        
+        # Step 4: Stage changes
+        print_colored("📝 Staging reverted changes...", Colors.CYAN)
+        success, _ = run_command("git add .")
+        if success:
+            print_colored("✅ Changes staged for commit", Colors.GREEN)
+            print_colored(f"💡 Run: git commit -m 'Revert to v{revert_to_version}'", Colors.BRIGHT_CYAN)
+        
+        print_colored(f"✅ Successfully reverted to v{revert_to_version}!", Colors.BRIGHT_GREEN, bold=True)
+        
+    except Exception as e:
+        print_colored(f"❌ Revert failed: {e}", Colors.RED)
+    
+    wait_for_key()
+
+def handle_cli_args() -> bool:
+    """Handle command line arguments"""
+    parser = argparse.ArgumentParser(description="Drizzleasy Release Management CLI")
+    parser.add_argument('--version', '-v', action='store_true', help='View current version')
+    parser.add_argument('--github', '-g', action='store_true', help='View Drizzleasy on GitHub')
+    parser.add_argument('--npm', '-n', action='store_true', help='View Drizzleasy on npm')
+    parser.add_argument('--update', '-u', action='store_true', help='Update version')
+    parser.add_argument('--release', '-p', action='store_true', help='Publish new release')
+    parser.add_argument('--docs', '-d', action='store_true', help='Release new docs')
+    parser.add_argument('--revert', '--7', action='store_true', help='Revert npm version and tag')
+    
+    args = parser.parse_args()
+    
+    # Execute based on arguments
+    if args.version:
+        print_header()
+        view_current_version()
+        return True
+    elif args.github:
+        print_header()
+        view_github()
+        return True
+    elif args.npm:
+        print_header()
+        view_npm()
+        return True
+    elif args.update:
+        print_header()
+        update_version()
+        return True
+    elif args.release:
+        print_header()
+        publish_release()
+        return True
+    elif args.docs:
+        print_header()
+        release_docs()
+        return True
+    elif args.revert:
+        print_header()
+        revert_version()
+        return True
+    
+    return False
+
+def main() -> None:
+    """Main CLI loop"""
+    # Handle command line arguments first
+    if handle_cli_args():
+        return
+    
+    # Interactive mode
+    while True:
+        try:
+            os.system('clear' if os.name == 'posix' else 'cls')
+            print_header()
+            show_menu()
+            
+            choice = get_user_input("Select option: ", Colors.BRIGHT_CYAN)
+            print()
+            
+            if choice == "1":
+                view_current_version()
+            elif choice == "2":
+                view_github()
+            elif choice == "3":
+                view_npm()
+            elif choice == "4":
+                update_version()
+            elif choice == "5":
+                publish_release()
+            elif choice == "6":
+                release_docs()
+            elif choice == "7":
+                revert_version()
+            elif choice.lower() in ["exit", "quit", "q"]:
+                break
+            else:
+                print_colored("❌ Invalid option. Please try again.", Colors.RED)
+                wait_for_key()
+                
+        except KeyboardInterrupt:
+            print_colored("\n\n👋 Goodbye!", Colors.YELLOW)
+            break
+        except Exception as e:
+            print_colored(f"❌ An error occurred: {e}", Colors.RED)
+            wait_for_key()
+
+if __name__ == "__main__":
+    main()

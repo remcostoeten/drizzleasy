@@ -1,5 +1,5 @@
 {
-  "name": "drizzleasy-monorepo",
+  "name": "drizzleasy",
   "version": "0.1.0",
   "private": true,
   "description": "Monorepo for drizzleasy - ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM",
@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "clean": "turbo run clean",
     "type-check": "turbo run type-check",
-    "release": "python3 scripts/release-cli"
+    "release": "python3 scripts/release-cli",
+    "gemini": "python3 scripts/gemini.py"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
