@@ -134,7 +134,7 @@ const crudBase = {
         if (newCondition) {
           whereConditions.push(newCondition)
         }
-        return queryBuilder
+        return Object.assign(callable, queryBuilder)
       },
       
       /**

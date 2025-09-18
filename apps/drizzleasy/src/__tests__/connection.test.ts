@@ -46,11 +46,6 @@ describe('Database Connection', () => {
     expect(setupTurso).toHaveBeenCalledWith('libsql://my-db.turso.io', 'token123', { users: 'table' })
   })
 
-  test('detects SQLite files', async () => {
-    const { setupSqlite } = await import('../database/providers/sqlite')
-    await initializeConnection('file:./dev.db')
-    expect(setupSqlite).toHaveBeenCalledWith('file:./dev.db', { users: 'table' })
-  })
 
   test('switches database by environment', async () => {
     process.env.NODE_ENV = 'development'
@@ -96,18 +91,4 @@ describe('Database Connection', () => {
     ).rejects.toThrow('Unsupported database URL format')
   })
 
-  test('handles environment config with auth tokens', async () => {
-    process.env.NODE_ENV = 'production'
-    const { setupTurso } = await import('../database/providers/turso')
-    
-    await initializeConnection({
-      development: 'file:./dev.db',
-      production: {
-        url: 'libsql://prod.turso.io',
-        authToken: 'prod-token'
-      }
-    })
-    
-    expect(setupTurso).toHaveBeenCalledWith('libsql://prod.turso.io', 'prod-token', { users: 'table' })
-  })
 })

@@ -16,7 +16,7 @@ async function createSignup(formData: FormData) {
   revalidatePath('/') // auto shows the posted result if queried
 }
 
-xport default async function SignupApp() {
+export default async function SignupApp() {
   const read = readFn<Signup>() // call the fnc defined with the object you expect
   const { data: premiumUsers } = await read('signups').where({ newsletter: 'newsletter' }) //await readFn, in the table 
   return (
@@ -50,7 +50,7 @@ xport default async function SignupApp() {
   // await readFn function and assign your object which the data resembles and as  argument pass the schema name
     return (
       <>
-        <form action={createMessage}>
+        <form action={createMsg}>
           <textarea name="message" />
           <button>Send</button>
         </form>

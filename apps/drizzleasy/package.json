@@ -8,15 +8,16 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
     "dist",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "repository": {
     "type": "git",
@@ -29,7 +30,7 @@
   "keywords": ["nextjs", "drizzle", "orm", "crud", "typescript", "react", "database", "sql", "postgresql", "sqlite"],
   "author": {
     "name": "Remco Stoeten",
-    "email": "your-email@example.com",
+    "email": "remcostoeten@hotmail.com",
     "url": "https://github.com/remcostoeten"
   },
   "license": "MIT",
@@ -71,5 +72,10 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "bun run clean && bun run build && bun run test",
     "release": "bun run prepublishOnly && bun publish"
+  }
+  ,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
