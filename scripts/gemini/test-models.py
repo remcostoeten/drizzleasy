@@ -51,8 +51,7 @@ def print_colored(text: str, color: str = Colors.WHITE, bold: bool = False, dim:
 # Available models (verified via API)
 MODELS = [
     "gemini-2.5-pro",
-    "gemini-2.5-flash", 
-    "gemini-2.0-flash"
+    "gemini-2.5-flash"
 ]
 
 def load_env():

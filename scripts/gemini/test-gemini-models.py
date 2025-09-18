@@ -208,8 +208,7 @@ def main():
     # Available models to test (verified via API)
     models = [
         "gemini-2.5-pro",
-        "gemini-2.5-flash",
-        "gemini-2.0-flash"
+        "gemini-2.5-flash"
     ]
     
     print("🧪 Testing Gemini Models for Changelog Generation (Parallel)")

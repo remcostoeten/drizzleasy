@@ -241,26 +241,6 @@ def get_gemini_model() -> str:
         "2": {
             "name": "gemini-2.5-flash",
             "desc": "Gemini 2.5 Flash - Fast, efficient, 1M tokens"
-        },
-        "3": {
-            "name": "gemini-2.0-flash-exp",
-            "desc": "Gemini 2.0 Flash (Experimental) - Latest, fast, multimodal"
-        },
-        "4": {
-            "name": "gemini-1.5-pro-002",
-            "desc": "Gemini 1.5 Pro (Latest) - Best reasoning, large context"
-        },
-        "5": {
-            "name": "gemini-1.5-pro",
-            "desc": "Gemini 1.5 Pro - Excellent reasoning, 2M token context"
-        },
-        "6": {
-            "name": "gemini-1.5-flash-002",
-            "desc": "Gemini 1.5 Flash (Latest) - Fast and efficient"
-        },
-        "7": {
-            "name": "gemini-1.5-flash",
-            "desc": "Gemini 1.5 Flash - Fast and efficient"
         }
     }
     
