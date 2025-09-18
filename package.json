@@ -15,7 +15,7 @@
     "clean": "turbo run clean",
     "type-check": "turbo run type-check",
     "release": "python3 scripts/release-cli",
-    "gemini": "python3 scripts/gemini.py"
+    "gemini": "python3 scripts/gemini-cli"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
