@@ -1,6 +1,8 @@
 ---
 title: WHERE Clauses
-description: Simple and intuitive WHERE clauses with natural syntax. No complex operators or MongoDB-style queries.
+description:
+    Simple and intuitive WHERE clauses with natural syntax. No complex operators or MongoDB-style
+    queries.
 keywords: [where, filter, query, simple, intuitive, natural]
 ---
 
@@ -11,6 +13,7 @@ Simple filtering with natural, readable syntax.
 ## Philosophy
 
 Our WHERE clauses use intuitive operators that read like natural language:
+
 - `age: '>18'` instead of `age: { $gt: 18 }`
 - `name: '*john*'` instead of `name: { $contains: 'john' }`
 - `role: ['admin', 'user']` instead of `role: { $in: ['admin', 'user'] }`
@@ -21,24 +24,21 @@ Our WHERE clauses use intuitive operators that read like natural language:
 import { readFn } from '@remcostoeten/drizzleasy'
 
 type User = {
-  id: string
-  name: string
-  email: string
-  age: number
-  status: 'active' | 'inactive'
-  role: 'admin' | 'user'
+    id: string
+    name: string
+    email: string
+    age: number
+    status: 'active' | 'inactive'
+    role: 'admin' | 'user'
 }
 
 const read = readFn<User>()
 
 // Simple equality
-const activeUsers = await read('users')
-  .where({ status: 'active' })()
+const activeUsers = await read('users').where({ status: 'active' })()
 
 // Multiple conditions (AND)
-const adminUsers = await read('users')
-  .where({ status: 'active' })
-  .where({ role: 'admin' })()
+const adminUsers = await read('users').where({ status: 'active' }).where({ role: 'admin' })()
 ```
 
 ## All Operators
@@ -101,22 +101,22 @@ For numbers, strings, and dates:
 
 ```typescript
 type Product = {
-  id: string
-  name: string
-  price: number
-  category: string
-  inStock: boolean
-  rating: number
+    id: string
+    name: string
+    price: number
+    category: string
+    inStock: boolean
+    rating: number
 }
 
 const read = readFn<Product>()
 
 // Affordable, quality products in stock
 const products = await read('products')
-  .where({ price: '<100' })
-  .where({ inStock: true })
-  .where({ rating: '>=4.0' })
-  .where({ category: ['electronics', 'books'] })()
+    .where({ price: '<100' })
+    .where({ inStock: true })
+    .where({ rating: '>=4.0' })
+    .where({ category: ['electronics', 'books'] })()
 ```
 
 ### User Management
@@ -126,31 +126,28 @@ const read = readFn<User>()
 
 // Active admins created this year
 const admins = await read('users')
-  .where({ role: 'admin' })
-  .where({ status: 'active' })
-  .where({ createdAt: '>=2024-01-01' })()
+    .where({ role: 'admin' })
+    .where({ status: 'active' })
+    .where({ createdAt: '>=2024-01-01' })()
 
 // Gmail users
-const gmailUsers = await read('users')
-  .where({ email: '*@gmail.com' })()
+const gmailUsers = await read('users').where({ email: '*@gmail.com' })()
 ```
 
 ### Blog Search
 
 ```typescript
 type Post = {
-  id: string
-  title: string
-  status: 'draft' | 'published'
-  authorId: string
+    id: string
+    title: string
+    status: 'draft' | 'published'
+    authorId: string
 }
 
 const read = readFn<Post>()
 
 // Published React posts
-const reactPosts = await read('posts')
-  .where({ status: 'published' })
-  .where({ title: '*React*' })()
+const reactPosts = await read('posts').where({ status: 'published' }).where({ title: '*React*' })()
 ```
 
 ## Type Safety
@@ -221,8 +218,8 @@ Simple syntax translates to standard SQL:
 .where({ name: '*john*' })
 
 // Generated SQL
-SELECT * FROM users 
-WHERE status = 'active' 
-  AND age > 18 
+SELECT * FROM users
+WHERE status = 'active'
+  AND age > 18
   AND name LIKE '%john%'
 ```

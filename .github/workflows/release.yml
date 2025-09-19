@@ -1,69 +1,69 @@
 name: Release
 on:
-  push:
-    tags:
-      - 'v*'
+    push:
+        tags:
+            - 'v*'
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.2.15
-          
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-        
-      - name: Build package
-        run: bun run build
-        
-      - name: Run tests
-        run: bun run test
-        
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-        
-      - name: Verify package.json version matches tag
-        run: |
-          PACKAGE_VERSION=$(cd apps/drizzleasy && node -p "require('./package.json').version")
-          if [ "$PACKAGE_VERSION" != "${{ steps.version.outputs.VERSION }}" ]; then
-            echo "❌ Version mismatch: package.json has $PACKAGE_VERSION but tag is ${{ steps.version.outputs.VERSION }}"
-            exit 1
-          fi
-          echo "✅ Version verification passed: $PACKAGE_VERSION"
-        
-      - name: Publish to npm
-        env:
-          NPM_CONFIG_PROVENANCE: true
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cd apps/drizzleasy
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-          echo "Publishing version ${{ steps.version.outputs.VERSION }} to npm..."
-          bun publish --access public --no-git-checks
-          
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-          files: |
-            apps/drizzleasy/dist/*
-            
-      - name: Notify on success
-        if: success()
-        run: |
-          echo "🎉 Successfully released v${{ steps.version.outputs.VERSION }}"
-          echo "📦 NPM: https://www.npmjs.com/package/@remcostoeten/drizzleasy/v/${{ steps.version.outputs.VERSION }}"
-          echo "🐙 GitHub: https://github.com/remcostoeten/drizzleasy/releases/tag/v${{ steps.version.outputs.VERSION }}"
+    publish:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.2.15
+
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Build package
+              run: bun run build
+
+            - name: Run tests
+              run: bun run test
+
+            - name: Extract version from tag
+              id: version
+              run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+            - name: Verify package.json version matches tag
+              run: |
+                  PACKAGE_VERSION=$(cd apps/drizzleasy && node -p "require('./package.json').version")
+                  if [ "$PACKAGE_VERSION" != "${{ steps.version.outputs.VERSION }}" ]; then
+                    echo "❌ Version mismatch: package.json has $PACKAGE_VERSION but tag is ${{ steps.version.outputs.VERSION }}"
+                    exit 1
+                  fi
+                  echo "✅ Version verification passed: $PACKAGE_VERSION"
+
+            - name: Publish to npm
+              env:
+                  NPM_CONFIG_PROVENANCE: true
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: |
+                  cd apps/drizzleasy
+                  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+                  echo "Publishing version ${{ steps.version.outputs.VERSION }} to npm..."
+                  bun publish --access public --no-git-checks
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  generate_release_notes: true
+                  draft: false
+                  prerelease: false
+                  files: |
+                      apps/drizzleasy/dist/*
+
+            - name: Notify on success
+              if: success()
+              run: |
+                  echo "🎉 Successfully released v${{ steps.version.outputs.VERSION }}"
+                  echo "📦 NPM: https://www.npmjs.com/package/@remcostoeten/drizzleasy/v/${{ steps.version.outputs.VERSION }}"
+                  echo "🐙 GitHub: https://github.com/remcostoeten/drizzleasy/releases/tag/v${{ steps.version.outputs.VERSION }}"

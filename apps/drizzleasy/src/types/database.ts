@@ -3,10 +3,10 @@
  * Supports PostgreSQL, MySQL, and SQLite databases.
  */
 export type TDatabase = {
-  insert: (table: any) => any
-  select: () => any
-  update: (table: any) => any
-  delete: (table: any) => any
+    insert: (table: any) => any
+    select: () => any
+    update: (table: any) => any
+    delete: (table: any) => any
 }
 
 /**

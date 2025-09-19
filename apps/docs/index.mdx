@@ -1,6 +1,8 @@
 ---
 title: Drizzleasy
-description: Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM. Build database operations with full TypeScript support and IntelliSense.
+description:
+    Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM. Build database operations
+    with full TypeScript support and IntelliSense.
 keywords: [crud, drizzle, orm, typescript, nextjs, database, type-safe, sql, drizzleasy]
 author: Remco Stoeten
 category: Database
@@ -9,7 +11,8 @@ tags: [crud, typescript, drizzle, nextjs, drizzleasy]
 
 # Drizzleasy
 
-Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM. Build database operations with full TypeScript support, IntelliSense, and error handling.
+Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM. Build database operations with
+full TypeScript support, IntelliSense, and error handling.
 
 ## Features
 
@@ -40,13 +43,13 @@ const db = await initializeConnection(process.env.DATABASE_URL!)
 
 // For Turso with auth token
 const db = await initializeConnection(process.env.DATABASE_URL!, {
-  authToken: process.env.TURSO_AUTH_TOKEN
+    authToken: process.env.TURSO_AUTH_TOKEN
 })
 
 // Environment-based switching
 const db = await initializeConnection({
-  development: 'file:./dev.db',
-  production: process.env.DATABASE_URL!
+    development: 'file:./dev.db',
+    production: process.env.DATABASE_URL!
 })
 ```
 
@@ -67,12 +70,12 @@ configure(db, schema)
 import { readFn, createFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
 
 type User = {
-  id: string
-  name: string
-  email: string
-  age: number
-  status: 'active' | 'inactive'
-  role: 'admin' | 'user'
+    id: string
+    name: string
+    email: string
+    age: number
+    status: 'active' | 'inactive'
+    role: 'admin' | 'user'
 }
 
 // Create factory functions
@@ -82,27 +85,25 @@ const update = updateFn<User>()
 const destroy = destroyFn<User>()
 
 // Create
-const { data, error } = await create('users')({ 
-  name: 'John', 
-  email: 'john@example.com',
-  age: 25,
-  status: 'active',
-  role: 'user'
+const { data, error } = await create('users')({
+    name: 'John',
+    email: 'john@example.com',
+    age: 25,
+    status: 'active',
+    role: 'user'
 })
 
 // Read all records
 const { data: users } = await read('users')()
 
 // Simple WHERE conditions
-const { data: activeUsers } = await read('users')
-  .where({ status: 'active' })()
+const { data: activeUsers } = await read('users').where({ status: 'active' })()
 
 // Advanced filtering
 const { data: results } = await read('users')
-  .where({ age: '>18' })              // Greater than 18
-  .where({ name: '*john*' })          // Contains 'john'
-  .where({ role: ['admin', 'user'] }) // IN array
-  ()
+    .where({ age: '>18' }) // Greater than 18
+    .where({ name: '*john*' }) // Contains 'john'
+    .where({ role: ['admin', 'user'] })() // IN array
 
 // Read by ID
 const { data: user } = await read('users').byId('123')
@@ -120,37 +121,33 @@ Intuitive filtering with natural operators:
 
 ```typescript
 type Product = {
-  id: string
-  name: string
-  price: number
-  category: string
-  inStock: boolean
-  rating: number
+    id: string
+    name: string
+    price: number
+    category: string
+    inStock: boolean
+    rating: number
 }
 
 const read = readFn<Product>()
 
 // Comparison operators
 const { data: affordableProducts } = await read('products')
-  .where({ price: '<100' })        // Less than 100
-  .where({ rating: '>=4.0' })      // 4 stars or higher
-  ()
+    .where({ price: '<100' }) // Less than 100
+    .where({ rating: '>=4.0' })() // 4 stars or higher
 
 // String matching
 const { data: searchResults } = await read('products')
-  .where({ name: '*laptop*' })     // Contains 'laptop'
-  .where({ category: 'electronics*' }) // Starts with 'electronics'
-  ()
+    .where({ name: '*laptop*' }) // Contains 'laptop'
+    .where({ category: 'electronics*' })() // Starts with 'electronics'
 
 // Array matching (IN operator)
-const { data: categoryProducts } = await read('products')
-  .where({ category: ['books', 'electronics', 'clothing'] })
-  ()
+const { data: categoryProducts } = await read('products').where({
+    category: ['books', 'electronics', 'clothing']
+})()
 
 // Not equal
-const { data: availableProducts } = await read('products')
-  .where({ category: '!discontinued' }) // Not discontinued
-  ()
+const { data: availableProducts } = await read('products').where({ category: '!discontinued' })() // Not discontinued
 ```
 
 ## All WHERE Operators
@@ -159,25 +156,51 @@ Complete reference for filtering conditions:
 
 ```typescript
 // Direct equality
-{ status: 'active' }           // Exact match
-{ isActive: true }             // Boolean values
-{ count: 0 }                   // Number values
+{
+    status: 'active'
+} // Exact match
+{
+    isActive: true
+} // Boolean values
+{
+    count: 0
+} // Number values
 
 // Comparison (numbers, strings, dates)
-{ age: '>18' }                 // Greater than
-{ age: '>=21' }                // Greater than or equal
-{ price: '<100' }              // Less than
-{ rating: '<=4.5' }            // Less than or equal
-{ status: '!inactive' }        // Not equal
+{
+    age: '>18'
+} // Greater than
+{
+    age: '>=21'
+} // Greater than or equal
+{
+    price: '<100'
+} // Less than
+{
+    rating: '<=4.5'
+} // Less than or equal
+{
+    status: '!inactive'
+} // Not equal
 
 // String patterns
-{ name: '*john*' }             // Contains 'john'
-{ name: 'john*' }              // Starts with 'john'
-{ email: '*@gmail.com' }       // Ends with '@gmail.com'
+{
+    name: '*john*'
+} // Contains 'john'
+{
+    name: 'john*'
+} // Starts with 'john'
+{
+    email: '*@gmail.com'
+} // Ends with '@gmail.com'
 
 // Array matching (IN operator)
-{ role: ['admin', 'user'] }    // Match any value in array
-{ category: ['books', 'tech'] } // Multiple categories
+{
+    role: ['admin', 'user']
+} // Match any value in array
+{
+    category: ['books', 'tech']
+} // Multiple categories
 ```
 
 ## Error Handling
@@ -189,8 +212,8 @@ const create = createFn<User>()
 const { data, error } = await create('users')({ name: 'John' })
 
 if (error) {
-  console.error('Operation failed:', error.message)
-  return
+    console.error('Operation failed:', error.message)
+    return
 }
 
 console.log('Success:', data)
@@ -207,11 +230,11 @@ import { useOptimisticCrud, createFn } from '@remcostoeten/drizzleasy'
 function UserList({ initialUsers }) {
   const { data, isPending, optimisticCreate } = useOptimisticCrud(initialUsers)
   const create = createFn<User>()
-  
+
   const handleCreate = (userData) => {
     optimisticCreate(userData, () => create('users')(userData))
   }
-  
+
   return (
     <div>
       {data.map(user => <div key={user.id}>{user.name}</div>)}
@@ -226,6 +249,7 @@ function UserList({ initialUsers }) {
 Drizzleasy supports multiple database providers with auto-detection:
 
 ### PostgreSQL
+
 ```typescript
 // Local PostgreSQL
 const db = await initializeConnection('postgresql://user:pass@localhost:5432/mydb')
@@ -235,6 +259,7 @@ const db = await initializeConnection(process.env.DATABASE_URL!)
 ```
 
 ### SQLite
+
 ```typescript
 // File-based SQLite
 const db = await initializeConnection('file:./database.db')
@@ -244,9 +269,10 @@ const db = await initializeConnection('file::memory:')
 ```
 
 ### Turso (LibSQL)
+
 ```typescript
 const db = await initializeConnection(process.env.DATABASE_URL!, {
-  authToken: process.env.TURSO_AUTH_TOKEN
+    authToken: process.env.TURSO_AUTH_TOKEN
 })
 ```
 
@@ -256,10 +282,22 @@ Works with both ESM and CommonJS:
 
 ```typescript
 // ESM (recommended)
-import { readFn, createFn, updateFn, destroyFn, initializeConnection } from '@remcostoeten/drizzleasy'
+import {
+    readFn,
+    createFn,
+    updateFn,
+    destroyFn,
+    initializeConnection
+} from '@remcostoeten/drizzleasy'
 
 // CommonJS
-const { readFn, createFn, updateFn, destroyFn, initializeConnection } = require('@remcostoeten/drizzleasy')
+const {
+    readFn,
+    createFn,
+    updateFn,
+    destroyFn,
+    initializeConnection
+} = require('@remcostoeten/drizzleasy')
 ```
 
 ## Next Steps

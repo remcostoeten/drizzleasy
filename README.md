@@ -1,16 +1,26 @@
 # Drizzleasy
-Drizzleasy is a library to make CRUD operations and database management ridiculously easy. 100% typesafe with full LSP support in your editor due to the chainable syntax.
+
+[![npm version](https://badge.fury.io/js/drizzleasy.svg)](https://badge.fury.io/js/drizzleasy)
+[![npm downloads](https://img.shields.io/npm/dm/@remcostoeten/drizzleasy.svg)](https://www.npmjs.com/package/@remcostoeten/drizzleasy)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/@remcostoeten/drizzleasy)](https://bundlephobia.com/package/@remcostoeten/drizzleasy)
+[![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/remcostoeten/drizzleasy.svg?style=social)](https://github.com/remcostoeten/drizzleasy)
+
+Drizzleasy is a library to make CRUD operations and database management ridiculously easy. 100%
+typesafe with full LSP support in your editor due to the chainable syntax.
 
 ### Quick Example
+
 ```ts
 type TUser = { id: string; email: string; isPremium: boolean }
 const read = readFn<TUser>()
 const create = createFn<TUser>()
 
 // Create new user
-const { data: newUser } = await create('users')({ 
-    email: formData.get('email'), 
-    isPremium: formData.get('premium') === 'true' 
+const { data: newUser } = await create('users')({
+    email: formData.get('email'),
+    isPremium: formData.get('premium') === 'true'
 })
 
 // Query premium users
@@ -22,13 +32,6 @@ return { newUser, premiumUsers }
 For full docs and examples visit [drizzleasy.vercel.app](https://drizzleasy.vercel.app)
 
 ![LSP Demo](premium-vscode-demo.gif)
-
-
-
-
-
-[![npm version](https://badge.fury.io/js/drizzleasy.svg)](https://badge.fury.io/js/drizzleasy)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
 
@@ -54,6 +57,7 @@ npm install @remcostoeten/drizzleasy
 ### Replace 7 lines with 1 line
 
 **Before:**
+
 ```typescript
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
@@ -64,6 +68,7 @@ export const db = drizzle(sql, { schema, logger: true })
 ```
 
 **After:**
+
 ```typescript
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 export const db = await initializeConnection(process.env.DATABASE_URL!)
@@ -83,20 +88,20 @@ const db = await initializeConnection('file:./dev.db')
 
 // Turso (with auth token)
 const db = await initializeConnection('libsql://my-db.turso.io', {
-  authToken: process.env.TURSO_AUTH_TOKEN
+    authToken: process.env.TURSO_AUTH_TOKEN
 })
 
 // Environment switching
 const db = await initializeConnection({
-  development: 'file:./dev.db',
-  production: process.env.DATABASE_URL!
+    development: 'file:./dev.db',
+    production: process.env.DATABASE_URL!
 })
 
 // Multiple databases
 const dbs = await initializeConnection({
-  main: process.env.DATABASE_URL!,
-  analytics: process.env.ANALYTICS_URL!,
-  cache: 'file:./cache.db'
+    main: process.env.DATABASE_URL!,
+    analytics: process.env.ANALYTICS_URL!,
+    cache: 'file:./cache.db'
 })
 ```
 
@@ -106,11 +111,11 @@ const dbs = await initializeConnection({
 import { readFn, createFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
 
 type User = {
-  id: string
-  name: string
-  email: string
-  age: number
-  status: 'active' | 'inactive'
+    id: string
+    name: string
+    email: string
+    age: number
+    status: 'active' | 'inactive'
 }
 
 // Create factory functions
@@ -124,16 +129,16 @@ const { data: users } = await read('users')()
 
 // Read with natural WHERE syntax
 const { data: activeUsers } = await read('users')
-  .where({ status: 'active' })
-  .where({ age: '>18' })
-  .where({ name: '*john*' })()
+    .where({ status: 'active' })
+    .where({ age: '>18' })
+    .where({ name: '*john*' })()
 
 // Create
 const { data, error } = await create('users')({
-  name: 'John',
-  email: 'john@example.com',
-  age: 25,
-  status: 'active'
+    name: 'John',
+    email: 'john@example.com',
+    age: 25,
+    status: 'active'
 })
 
 // Update
@@ -146,6 +151,7 @@ await destroy('users')('user-123')
 ## Database Connection
 
 ### Auto-Detection
+
 ```typescript
 // PostgreSQL (Neon, Vercel, Docker)
 const db = initializeConnection('postgresql://...')
@@ -155,23 +161,24 @@ const db = initializeConnection('file:./dev.db')
 
 // Turso (with auth token)
 const db = initializeConnection('libsql://...', {
-  authToken: process.env.TURSO_AUTH_TOKEN
+    authToken: process.env.TURSO_AUTH_TOKEN
 })
 ```
 
 ### Environment Switching
+
 ```typescript
 // Automatic environment detection
 const db = initializeConnection({
-  development: 'file:./dev.db',
-  production: process.env.DATABASE_URL!
+    development: 'file:./dev.db',
+    production: process.env.DATABASE_URL!
 })
 
 // Multiple databases
 const dbs = initializeConnection({
-  main: process.env.DATABASE_URL!,
-  analytics: process.env.ANALYTICS_URL!,
-  cache: 'file:./cache.db'
+    main: process.env.DATABASE_URL!,
+    analytics: process.env.ANALYTICS_URL!,
+    cache: 'file:./cache.db'
 })
 ```
 
@@ -179,20 +186,36 @@ const dbs = initializeConnection({
 
 ```typescript
 // Comparison
-{ age: '>18' }           // Greater than
-{ price: '<=100' }       // Less than or equal
-{ status: '!inactive' }  // Not equal
+{
+    age: '>18'
+} // Greater than
+{
+    price: '<=100'
+} // Less than or equal
+{
+    status: '!inactive'
+} // Not equal
 
 // String patterns
-{ name: '*john*' }       // Contains
-{ name: 'john*' }        // Starts with
-{ email: '*@gmail.com' } // Ends with
+{
+    name: '*john*'
+} // Contains
+{
+    name: 'john*'
+} // Starts with
+{
+    email: '*@gmail.com'
+} // Ends with
 
 // Arrays (IN)
-{ role: ['admin', 'user'] }
+{
+    role: ['admin', 'user']
+}
 
 // Direct equality
-{ status: 'active' }
+{
+    status: 'active'
+}
 ```
 
 ## Module Support
@@ -201,10 +224,22 @@ Works with both ESM and CommonJS:
 
 ```typescript
 // ESM (recommended)
-import { readFn, createFn, updateFn, destroyFn, initializeConnection } from '@remcostoeten/drizzleasy'
+import {
+    readFn,
+    createFn,
+    updateFn,
+    destroyFn,
+    initializeConnection
+} from '@remcostoeten/drizzleasy'
 
 // CommonJS
-const { readFn, createFn, updateFn, destroyFn, initializeConnection } = require('@remcostoeten/drizzleasy')
+const {
+    readFn,
+    createFn,
+    updateFn,
+    destroyFn,
+    initializeConnection
+} = require('@remcostoeten/drizzleasy')
 ```
 
 ## Error Handling
@@ -216,8 +251,8 @@ const create = createFn<User>()
 const { data, error } = await create('users')({ name: 'John' })
 
 if (error) {
-  console.error('Operation failed:', error.message)
-  return
+    console.error('Operation failed:', error.message)
+    return
 }
 
 console.log('Success:', data)

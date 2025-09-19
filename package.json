@@ -1,33 +1,41 @@
 {
-  "name": "drizzleasy",
-  "version": "0.1.0",
-  "private": true,
-  "description": "Monorepo for drizzleasy - ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM",
-  "workspaces": ["apps/*", "packages/*"],
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint:fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "clean": "turbo run clean",
-    "type-check": "turbo run type-check",
-    "release": "python3 scripts/release-cli",
-    "gemini": "python3 scripts/gemini-cli"
-  },
-  "devDependencies": {
-    "turbo": "^2.0.0",
-    "typescript": "^5.0.0",
-    "@types/node": "^20.0.0",
-    "eslint": "^8.57.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.2.5"
-  },
-  "packageManager": "bun@1.2.15",
-  "engines": { "node": ">=18" }
+    "name": "drizzleasy",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Monorepo for drizzleasy - ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM",
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "test": "turbo run test",
+        "lint": "turbo run lint",
+        "lint:fix": "turbo run lint:fix",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "clean": "turbo run clean",
+        "type-check": "turbo run type-check",
+        "release": "python3 scripts/release-cli",
+        "gemini": "python3 scripts/gemini-cli",
+        "cli": "cd apps/drizzleasy && (test -f dist/cli/index.js || bun run build) && node bin/drizzleasy",
+        "cli:build": "cd apps/drizzleasy && bun run build",
+        "cli:fresh": "cd apps/drizzleasy && bun run build && node bin/drizzleasy"
+    },
+    "devDependencies": {
+        "turbo": "^2.0.0",
+        "typescript": "^5.0.0",
+        "@types/node": "^20.0.0",
+        "eslint": "^8.57.0",
+        "@typescript-eslint/eslint-plugin": "^6.21.0",
+        "@typescript-eslint/parser": "^6.21.0",
+        "eslint-plugin-import": "^2.29.1",
+        "eslint-config-prettier": "^9.1.0",
+        "prettier": "^3.2.5"
+    },
+    "packageManager": "bun@1.2.15",
+    "engines": {
+        "node": ">=18"
+    }
 }
