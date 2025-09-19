@@ -1,9 +1,12 @@
 # drizzleasy
+
 <small><i>Because who doesn't love abstractions on top of abstractions?</small>
 
-Drizzleasy is a library to make CRUD operations and database management ridiculously easy. 100% typesafe with full LSP support in your editor due to the chainable syntax.
+Drizzleasy is a library to make CRUD operations and database management ridiculously easy. 100%
+typesafe with full LSP support in your editor due to the chainable syntax.
 
 Just see how easy creating, and rendering your data becomes
+
 ```ts
 type Signup = { id: string; email: string; newsletter: 'yes' | 'no' }
 
@@ -18,7 +21,7 @@ async function createSignup(formData: FormData) {
 
 export default async function SignupApp() {
   const read = readFn<Signup>() // call the fnc defined with the object you expect
-  const { data: premiumUsers } = await read('signups').where({ newsletter: 'newsletter' }) //await readFn, in the table 
+  const { data: premiumUsers } = await read('signups').where({ newsletter: 'newsletter' }) //await readFn, in the table
   return (
     <>
       <form action={createSignup}>
@@ -34,35 +37,35 @@ export default async function SignupApp() {
   )
 }
 ```
-  ```ts
-  type TProps = { message: string }
 
-  async function createMsg(formData: FormData) {
-    'use server' // must be server action
-    await createFn<TProps>()('messages')({ // await create function and as string argument pass your drizzle schema
-      message: formData.get('message'),
-    })
-    revalidatePath('/') // instantly show rendered results w/o refresh
-  }
+```ts
+type TProps = { message: string }
 
-  export default async function MessageForm() {
-    const { data: messages } = await readFn<TProps>()('messages')() 
-  // await readFn function and assign your object which the data resembles and as  argument pass the schema name
-    return (
-      <>
-        <form action={createMsg}>
-          <textarea name="message" />
-          <button>Send</button>
-        </form>
+async function createMsg(formData: FormData) {
+  'use server' // must be server action
+  await createFn<TProps>()('messages')({ // await create function and as string argument pass your drizzle schema
+    message: formData.get('message'),
+  })
+  revalidatePath('/') // instantly show rendered results w/o refresh
+}
 
-    {messages?.map((msg, i) => (
-          <div key={i}>{msg.message}</div>
-        ))}
-      </>
-    )
-  }
-  ```
+export default async function MessageForm() {
+  const { data: messages } = await readFn<TProps>()('messages')()
+// await readFn function and assign your object which the data resembles and as  argument pass the schema name
+  return (
+    <>
+      <form action={createMsg}>
+        <textarea name="message" />
+        <button>Send</button>
+      </form>
 
+  {messages?.map((msg, i) => (
+        <div key={i}>{msg.message}</div>
+      ))}
+    </>
+  )
+}
+```
 
 [![npm version](https://badge.fury.io/js/drizzleasy.svg)](https://badge.fury.io/js/drizzleasy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -91,6 +94,7 @@ npm install @remcostoeten/drizzleasy
 ### Replace 7 lines with 1 line
 
 **Before:**
+
 ```typescript
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
@@ -101,6 +105,7 @@ export const db = drizzle(sql, { schema, logger: true })
 ```
 
 **After:**
+
 ```typescript
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 export const db = await initializeConnection(process.env.DATABASE_URL!)
@@ -120,20 +125,20 @@ const db = await initializeConnection('file:./dev.db')
 
 // Turso (with auth token)
 const db = await initializeConnection('libsql://my-db.turso.io', {
-  authToken: process.env.TURSO_AUTH_TOKEN
+    authToken: process.env.TURSO_AUTH_TOKEN
 })
 
 // Environment switching
 const db = await initializeConnection({
-  development: 'file:./dev.db',
-  production: process.env.DATABASE_URL!
+    development: 'file:./dev.db',
+    production: process.env.DATABASE_URL!
 })
 
 // Multiple databases
 const dbs = await initializeConnection({
-  main: process.env.DATABASE_URL!,
-  analytics: process.env.ANALYTICS_URL!,
-  cache: 'file:./cache.db'
+    main: process.env.DATABASE_URL!,
+    analytics: process.env.ANALYTICS_URL!,
+    cache: 'file:./cache.db'
 })
 ```
 
@@ -143,11 +148,11 @@ const dbs = await initializeConnection({
 import { readFn, createFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
 
 type User = {
-  id: string
-  name: string
-  email: string
-  age: number
-  status: 'active' | 'inactive'
+    id: string
+    name: string
+    email: string
+    age: number
+    status: 'active' | 'inactive'
 }
 
 // Create factory functions
@@ -161,16 +166,16 @@ const { data: users } = await read('users')()
 
 // Read with natural WHERE syntax
 const { data: activeUsers } = await read('users')
-  .where({ status: 'active' })
-  .where({ age: '>18' })
-  .where({ name: '*john*' })()
+    .where({ status: 'active' })
+    .where({ age: '>18' })
+    .where({ name: '*john*' })()
 
 // Create
 const { data, error } = await create('users')({
-  name: 'John',
-  email: 'john@example.com',
-  age: 25,
-  status: 'active'
+    name: 'John',
+    email: 'john@example.com',
+    age: 25,
+    status: 'active'
 })
 
 // Update
@@ -183,6 +188,7 @@ await destroy('users')('user-123')
 ## Database Connection
 
 ### Auto-Detection
+
 ```typescript
 // PostgreSQL (Neon, Vercel, Docker)
 const db = initializeConnection('postgresql://...')
@@ -192,23 +198,24 @@ const db = initializeConnection('file:./dev.db')
 
 // Turso (with auth token)
 const db = initializeConnection('libsql://...', {
-  authToken: process.env.TURSO_AUTH_TOKEN
+    authToken: process.env.TURSO_AUTH_TOKEN
 })
 ```
 
 ### Environment Switching
+
 ```typescript
 // Automatic environment detection
 const db = initializeConnection({
-  development: 'file:./dev.db',
-  production: process.env.DATABASE_URL!
+    development: 'file:./dev.db',
+    production: process.env.DATABASE_URL!
 })
 
 // Multiple databases
 const dbs = initializeConnection({
-  main: process.env.DATABASE_URL!,
-  analytics: process.env.ANALYTICS_URL!,
-  cache: 'file:./cache.db'
+    main: process.env.DATABASE_URL!,
+    analytics: process.env.ANALYTICS_URL!,
+    cache: 'file:./cache.db'
 })
 ```
 
@@ -216,20 +223,36 @@ const dbs = initializeConnection({
 
 ```typescript
 // Comparison
-{ age: '>18' }           // Greater than
-{ price: '<=100' }       // Less than or equal
-{ status: '!inactive' }  // Not equal
+{
+    age: '>18'
+} // Greater than
+{
+    price: '<=100'
+} // Less than or equal
+{
+    status: '!inactive'
+} // Not equal
 
 // String patterns
-{ name: '*john*' }       // Contains
-{ name: 'john*' }        // Starts with
-{ email: '*@gmail.com' } // Ends with
+{
+    name: '*john*'
+} // Contains
+{
+    name: 'john*'
+} // Starts with
+{
+    email: '*@gmail.com'
+} // Ends with
 
 // Arrays (IN)
-{ role: ['admin', 'user'] }
+{
+    role: ['admin', 'user']
+}
 
 // Direct equality
-{ status: 'active' }
+{
+    status: 'active'
+}
 ```
 
 ## Module Support
@@ -238,10 +261,22 @@ Works with both ESM and CommonJS:
 
 ```typescript
 // ESM (recommended)
-import { readFn, createFn, updateFn, destroyFn, initializeConnection } from '@remcostoeten/drizzleasy'
+import {
+    readFn,
+    createFn,
+    updateFn,
+    destroyFn,
+    initializeConnection
+} from '@remcostoeten/drizzleasy'
 
 // CommonJS
-const { readFn, createFn, updateFn, destroyFn, initializeConnection } = require('@remcostoeten/drizzleasy')
+const {
+    readFn,
+    createFn,
+    updateFn,
+    destroyFn,
+    initializeConnection
+} = require('@remcostoeten/drizzleasy')
 ```
 
 ## Error Handling
@@ -253,8 +288,8 @@ const create = createFn<User>()
 const { data, error } = await create('users')({ name: 'John' })
 
 if (error) {
-  console.error('Operation failed:', error.message)
-  return
+    console.error('Operation failed:', error.message)
+    return
 }
 
 console.log('Success:', data)

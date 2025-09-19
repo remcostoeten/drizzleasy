@@ -1,7 +1,7 @@
 /**
  * Base entity type that all database records must extend.
  * Requires an `id` field and optionally includes timestamp fields.
- * 
+ *
  * @example
  * ```typescript
  * type User = {
@@ -14,12 +14,12 @@
  * ```
  */
 export type TEntity = {
-  /** Unique identifier for the entity */
-  id: string | number
-  /** Optional creation timestamp */
-  createdAt?: string | Date
-  /** Optional update timestamp */
-  updatedAt?: string | Date
+    /** Unique identifier for the entity */
+    id: string | number
+    /** Optional creation timestamp */
+    createdAt?: string | Date
+    /** Optional update timestamp */
+    updatedAt?: string | Date
 }
 
 /**
@@ -27,8 +27,8 @@ export type TEntity = {
  * Use this when your entities always have createdAt/updatedAt.
  */
 export type TTimestamped = TEntity & {
-  createdAt: string | Date
-  updatedAt: string | Date
+    createdAt: string | Date
+    updatedAt: string | Date
 }
 
 /**

@@ -1,37 +1,61 @@
 /**
  * Drizzleasy - Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM
- * 
- * @example Quick start
- * ```typescript
- * import { initializeConnection, readFn, createFn } from '@remcostoeten/drizzleasy'
- * 
- * // Auto-configure database
- * const db = await initializeConnection(process.env.DATABASE_URL!)
- * 
- * // Create typed functions
- * const read = readFn<User>()
- * const create = createFn<User>()
- * 
- * // Use CRUD operations
- * const { data: users } = await read('users')()
- * const { data: newUser } = await create('users')({ name: 'John' })
- * ```
+ *
+ * Provides a set of utilities and factory functions to quickly perform
+ * typed CRUD operations, manage database connections, and handle
+ * client-side optimistic updates.
+ *
+ * @module drizzleasy
  */
 
-// Main CRUD interface
+/**
+ * Main CRUD interface for performing basic create, read, update, and delete operations.
+ * @see ./core
+ */
 export { crud } from './core'
 
-// Database connection
+/**
+ * Initializes a database connection.
+ * @param {string} connectionString - The database URL/connection string.
+ * @returns {Promise<DatabaseConnection>} A promise that resolves to a connected database instance.
+ * @see ./database
+ */
 export { initializeConnection } from './database'
 
-// Configuration
+/**
+ * Configure global Drizzleasy settings.
+ * @param {DrizzleasyConfig} config - Configuration object for Drizzleasy.
+ * @see ./config
+ */
 export { configure } from './config'
 
-// Factory functions
+/**
+ * Factory function to create a type-safe `create` function for a given entity.
+ * @template T
+ * @returns {Function} A `create` function for the entity type `T`.
+ * @see ./factory
+ */
 export { createFn, readFn, updateFn, destroyFn } from './factory'
 
-// Client-side utilities
+/**
+ * Hook to perform optimistic CRUD operations on the client side.
+ * @returns {object} Methods and state for client-side CRUD with optimistic updates.
+ * @see ./client
+ */
 export { useOptimisticCrud, withTransition } from './client'
 
-// Types
+/**
+ * Types used across Drizzleasy for entities, responses, and configuration.
+ * @see ./types
+ */
 export type * from './types'
+
+/**
+ * CLI interface for programmatic CRUD or setup operations.
+ * @example
+ * ```bash
+ * npx drizzleasy run
+ * ```
+ * @see ./cli
+ */
+export { run as runCli } from './cli'

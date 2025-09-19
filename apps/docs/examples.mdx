@@ -1,6 +1,8 @@
 ---
 title: Examples
-description: Real-world examples and use cases for CRUD Builder. Learn how to implement common patterns and best practices.
+description:
+    Real-world examples and use cases for CRUD Builder. Learn how to implement common patterns and
+    best practices.
 keywords: [examples, patterns, use-cases, tutorial, crud, implementation]
 ---
 
@@ -19,13 +21,13 @@ Complete CRUD operations for a todo application.
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core'
 
 export const todos = pgTable('todos', {
-  id: text('id').primaryKey(),
-  title: text('title').notNull(),
-  description: text('description'),
-  completed: boolean('completed').default(false),
-  priority: text('priority').$type<'low' | 'medium' | 'high'>().default('medium'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+    id: text('id').primaryKey(),
+    title: text('title').notNull(),
+    description: text('description'),
+    completed: boolean('completed').default(false),
+    priority: text('priority').$type<'low' | 'medium' | 'high'>().default('medium'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow()
 })
 
 export type Todo = typeof todos.$inferSelect
@@ -48,40 +50,40 @@ const update = updateFn<Todo>()
 const destroy = destroyFn<Todo>()
 
 export async function createTodo(data: { title: string; description?: string }) {
-  const result = await create('todos')({
-    id: crypto.randomUUID(),
-    ...data,
-  })
-  
-  if (!result.error) {
-    revalidatePath('/todos')
-  }
-  
-  return result
+    const result = await create('todos')({
+        id: crypto.randomUUID(),
+        ...data
+    })
+
+    if (!result.error) {
+        revalidatePath('/todos')
+    }
+
+    return result
 }
 
 export async function updateTodo(id: string, data: Partial<Todo>) {
-  const result = await update('todos')(id, data)
-  
-  if (!result.error) {
-    revalidatePath('/todos')
-  }
-  
-  return result
+    const result = await update('todos')(id, data)
+
+    if (!result.error) {
+        revalidatePath('/todos')
+    }
+
+    return result
 }
 
 export async function destroyTodo(id: string) {
-  const result = await destroy('todos')(id)
-  
-  if (!result.error) {
-    revalidatePath('/todos')
-  }
-  
-  return result
+    const result = await destroy('todos')(id)
+
+    if (!result.error) {
+        revalidatePath('/todos')
+    }
+
+    return result
 }
 
 export async function getTodos() {
-  return await read('todos')()
+    return await read('todos')()
 }
 ```
 
@@ -100,25 +102,25 @@ interface TodoListProps {
 
 export function TodoList({ initialTodos }: TodoListProps) {
   const { data: todos, isPending, optimisticCreate } = useOptimisticCrud(initialTodos)
-  
+
   const handleCreate = async (formData: FormData) => {
     const title = formData.get('title') as string
     const description = formData.get('description') as string
-    
+
     optimisticCreate(
       { title, description, completed: false, priority: 'medium' },
       () => createTodo({ title, description })
     )
   }
-  
+
   const handleToggle = async (todo: Todo) => {
     await updateTodo(todo.id, { completed: !todo.completed })
   }
-  
+
   const handledestroy = async (id: string) => {
     await destroyTodo(id)
   }
-  
+
   return (
     <div>
       <form action={handleCreate} className="mb-4">
@@ -128,7 +130,7 @@ export function TodoList({ initialTodos }: TodoListProps) {
           {isPending ? 'Adding...' : 'Add Todo'}
         </button>
       </form>
-      
+
       <div className="space-y-2">
         {todos.map(todo => (
           <div key={todo.id} className="flex items-center gap-2">
@@ -161,30 +163,30 @@ import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 export const users = pgTable('users', {
-  id: text('id').primaryKey(),
-  email: text('email').unique().notNull(),
-  name: text('name').notNull(),
-  avatar: text('avatar'),
-  isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+    id: text('id').primaryKey(),
+    email: text('email').unique().notNull(),
+    name: text('name').notNull(),
+    avatar: text('avatar'),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow()
 })
 
 export const posts = pgTable('posts', {
-  id: text('id').primaryKey(),
-  title: text('title').notNull(),
-  content: text('content'),
-  authorId: text('author_id').references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+    id: text('id').primaryKey(),
+    title: text('title').notNull(),
+    content: text('content'),
+    authorId: text('author_id').references(() => users.id),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow()
 })
 
 export const usersRelations = relations(users, ({ many }) => ({
-  posts: many(posts),
+    posts: many(posts)
 }))
 
 export const postsRelations = relations(posts, ({ one }) => ({
-  author: one(users, { fields: [posts.authorId], references: [users.id] }),
+    author: one(users, { fields: [posts.authorId], references: [users.id] })
 }))
 
 export type User = typeof users.$inferSelect
@@ -211,13 +213,13 @@ export const destroyPost = destroyFn<Post>()
 
 // Helper functions
 export async function getUserByEmail(email: string) {
-  const { data: users } = await readUsers('users')()
-  return users?.find(user => user.email === email) || null
+    const { data: users } = await readUsers('users')()
+    return users?.find(user => user.email === email) || null
 }
 
 export async function getUserPosts(userId: string) {
-  const { data: posts } = await readPosts('posts')()
-  return posts?.filter(post => post.authorId === userId) || []
+    const { data: posts } = await readPosts('posts')()
+    return posts?.filter(post => post.authorId === userId) || []
 }
 ```
 
@@ -229,44 +231,44 @@ import { createUser, readUsers, updateUser, destroyUser, getUserByEmail } from '
 import type { User } from '@/schema/users'
 
 export class UserService {
-  static async create(userData: { email: string; name: string; avatar?: string }) {
-    // Check if user already exists
-    const existingUser = await getUserByEmail(userData.email)
-    if (existingUser) {
-      return { error: new Error('User already exists') }
+    static async create(userData: { email: string; name: string; avatar?: string }) {
+        // Check if user already exists
+        const existingUser = await getUserByEmail(userData.email)
+        if (existingUser) {
+            return { error: new Error('User already exists') }
+        }
+
+        return await createUser('users')({
+            id: crypto.randomUUID(),
+            ...userData
+        })
     }
-    
-    return await createUser('users')({
-      id: crypto.randomUUID(),
-      ...userData,
-    })
-  }
-  
-  static async getAll() {
-    return await readUsers('users')()
-  }
-  
-  static async getById(id: string) {
-    return await readUsers('users').byId(id)
-  }
-  
-  static async update(id: string, data: Partial<User>) {
-    return await updateUser('users')(id, {
-      ...data,
-      updatedAt: new Date(),
-    })
-  }
-  
-  static async deactivate(id: string) {
-    return await updateUser('users')(id, {
-      isActive: false,
-      updatedAt: new Date(),
-    })
-  }
-  
-  static async destroy(id: string) {
-    return await destroyUser('users')(id)
-  }
+
+    static async getAll() {
+        return await readUsers('users')()
+    }
+
+    static async getById(id: string) {
+        return await readUsers('users').byId(id)
+    }
+
+    static async update(id: string, data: Partial<User>) {
+        return await updateUser('users')(id, {
+            ...data,
+            updatedAt: new Date()
+        })
+    }
+
+    static async deactivate(id: string) {
+        return await updateUser('users')(id, {
+            isActive: false,
+            updatedAt: new Date()
+        })
+    }
+
+    static async destroy(id: string) {
+        return await destroyUser('users')(id)
+    }
 }
 ```
 
@@ -279,24 +281,24 @@ export class UserService {
 import type { TResult } from '@remcostoeten/drizzleasy'
 
 export function handleCrudResult<T>(result: TResult<T>) {
-  if (result.error) {
-    console.error('CRUD operation failed:', result.error.message)
-    
-    // Log to external service
-    // logError(result.error)
-    
-    return {
-      success: false,
-      message: result.error.message,
-      data: null,
+    if (result.error) {
+        console.error('CRUD operation failed:', result.error.message)
+
+        // Log to external service
+        // logError(result.error)
+
+        return {
+            success: false,
+            message: result.error.message,
+            data: null
+        }
     }
-  }
-  
-  return {
-    success: true,
-    message: 'Operation completed successfully',
-    data: result.data,
-  }
+
+    return {
+        success: true,
+        message: 'Operation completed successfully',
+        data: result.data
+    }
 }
 
 // Usage
@@ -304,7 +306,7 @@ const result = await crud.create('users')(userData)
 const response = handleCrudResult(result)
 
 if (!response.success) {
-  return Response.json({ error: response.message }, { status: 400 })
+    return Response.json({ error: response.message }, { status: 400 })
 }
 ```
 
@@ -315,24 +317,24 @@ if (!response.success) {
 import { z } from 'zod'
 
 const userSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(2).max(50),
-  avatar: z.string().url().optional(),
+    email: z.string().email(),
+    name: z.string().min(2).max(50),
+    avatar: z.string().url().optional()
 })
 
 export async function createUserWithValidation(data: unknown) {
-  const validation = userSchema.safeParse(data)
-  
-  if (!validation.success) {
-    return {
-      error: new Error(`Validation failed: ${validation.error.message}`),
+    const validation = userSchema.safeParse(data)
+
+    if (!validation.success) {
+        return {
+            error: new Error(`Validation failed: ${validation.error.message}`)
+        }
     }
-  }
-  
-  return await crud.create('users')({
-    id: crypto.randomUUID(),
-    ...validation.data,
-  })
+
+    return await crud.create('users')({
+        id: crypto.randomUUID(),
+        ...validation.data
+    })
 }
 ```
 
@@ -345,26 +347,26 @@ export async function createUserWithValidation(data: unknown) {
 import { createFn } from '@remcostoeten/drizzleasy'
 
 export async function createMultipleUsers(users: Array<{ email: string; name: string }>) {
-  const create = createFn<User>()
-  
-  const results = await Promise.allSettled(
-    users.map(user => 
-      create('users')({
-        id: crypto.randomUUID(),
-        ...user,
-      })
+    const create = createFn<User>()
+
+    const results = await Promise.allSettled(
+        users.map(user =>
+            create('users')({
+                id: crypto.randomUUID(),
+                ...user
+            })
+        )
     )
-  )
-  
-  const successful = results
-    .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
-    .map(result => result.value.data)
-    .filter(Boolean)
-  
-  const failed = results
-    .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-    .map(result => result.reason)
-  
-  return { successful, failed }
+
+    const successful = results
+        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+        .map(result => result.value.data)
+        .filter(Boolean)
+
+    const failed = results
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+        .map(result => result.reason)
+
+    return { successful, failed }
 }
 ```

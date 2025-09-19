@@ -1,6 +1,8 @@
 ---
 title: API Reference
-description: Complete API documentation for CRUD Builder. Learn about all available methods, types, and configuration options.
+description:
+    Complete API documentation for CRUD Builder. Learn about all available methods, types, and
+    configuration options.
 keywords: [api, reference, crud, methods, types, typescript]
 ---
 
@@ -23,16 +25,18 @@ crud.create<T>(tableName: string)(data: TCreateInput<T>): Promise<TResult<T[]>>
 ```
 
 **Parameters:**
+
 - `tableName` - Name of the database table
 - `data` - Object with fields to insert (excludes `id`, `createdAt`, `updatedAt`)
 
 **Returns:** Promise with `{ data?, error? }` format
 
 **Example:**
+
 ```typescript
 const { data, error } = await crud.create('users')({
-  name: 'John Doe',
-  email: 'john@example.com'
+    name: 'John Doe',
+    email: 'john@example.com'
 })
 ```
 
@@ -49,11 +53,13 @@ crud.read<T>(tableName: string): {
 ```
 
 **Methods:**
+
 - `()` - Get all records (callable) and executes accumulated WHERE conditions
 - `where(condition)` - Add WHERE condition (chainable)
 - `byId(id)` - Get single record by ID
 
 **Example:**
+
 ```typescript
 // Get all users
 const { data: users } = await crud.read('users')()
@@ -62,9 +68,10 @@ const { data: users } = await crud.read('users')()
 const { data: user } = await crud.read('users').byId('123')
 
 // Filter with WHERE
-const { data: filtered } = await crud.read('users')
-  .where({ status: 'active' })
-  .where({ age: '>18' })()
+const { data: filtered } = await crud
+    .read('users')
+    .where({ status: 'active' })
+    .where({ age: '>18' })()
 ```
 
 #### crud.update()
@@ -76,14 +83,16 @@ crud.update<T>(tableName: string)(id: string | number, data: TUpdateInput<T>): P
 ```
 
 **Parameters:**
+
 - `id` - ID of record to update
 - `data` - Partial object with fields to update (excludes `id`, `createdAt`)
 
 **Example:**
+
 ```typescript
 const { data } = await crud.update('users')('123', {
-  name: 'Jane Doe',
-  email: 'jane@example.com'
+    name: 'Jane Doe',
+    email: 'jane@example.com'
 })
 ```
 
@@ -96,6 +105,7 @@ crud.destroy<T>(tableName: string)(id: string | number): Promise<TResult<T[]>>
 ```
 
 **Example:**
+
 ```typescript
 const { data } = await crud.destroy('users')('123')
 ```
@@ -107,10 +117,13 @@ const { data } = await crud.destroy('users')('123')
 Creates a typed create function for reusable CRUD operations.
 
 ```typescript
-function createFn<T extends TEntity = TEntity>(): (tableName: string) => (data: TCreateInput<T>) => Promise<TResult<T[]>>
+function createFn<T extends TEntity = TEntity>(): (
+    tableName: string
+) => (data: TCreateInput<T>) => Promise<TResult<T[]>>
 ```
 
 **Example:**
+
 ```typescript
 const create = createFn<User>()
 const { data, error } = await create('users')({ name: 'John', email: 'john@example.com' })
@@ -125,6 +138,7 @@ function readFn<T extends TEntity = TEntity>(): (tableName: string) => ReadOpera
 ```
 
 **Example:**
+
 ```typescript
 const read = readFn<User>()
 
@@ -132,8 +146,7 @@ const read = readFn<User>()
 const { data: users } = await read('users')()
 
 // Filter with WHERE
-const { data: filtered } = await read('users')
-  .where({ status: 'active' })()
+const { data: filtered } = await read('users').where({ status: 'active' })()
 ```
 
 ### updateFn()
@@ -141,10 +154,13 @@ const { data: filtered } = await read('users')
 Creates a typed update function for modifying existing records.
 
 ```typescript
-function updateFn<T extends TEntity = TEntity>(): (tableName: string) => (id: string | number, data: TUpdateInput<T>) => Promise<TResult<T[]>>
+function updateFn<T extends TEntity = TEntity>(): (
+    tableName: string
+) => (id: string | number, data: TUpdateInput<T>) => Promise<TResult<T[]>>
 ```
 
 **Example:**
+
 ```typescript
 const update = updateFn<User>()
 const { data, error } = await update('users')('123', { name: 'Jane' })
@@ -155,10 +171,13 @@ const { data, error } = await update('users')('123', { name: 'Jane' })
 Creates a typed destroy function for deleting records.
 
 ```typescript
-function destroyFn<T extends TEntity = TEntity>(): (tableName: string) => (id: string | number) => Promise<TResult<T[]>>
+function destroyFn<T extends TEntity = TEntity>(): (
+    tableName: string
+) => (id: string | number) => Promise<TResult<T[]>>
 ```
 
 **Example:**
+
 ```typescript
 const destroy = destroyFn<User>()
 const { data, error } = await destroy('users')('123')
@@ -175,10 +194,12 @@ function configure<T extends TDatabase, S extends TSchema>(database: T, schemaOb
 ```
 
 **Parameters:**
+
 - `database` - Drizzle database instance
 - `schemaObj` - Schema object with table definitions
 
 **Example:**
+
 ```typescript
 import { drizzle } from 'drizzle-orm/neon-http'
 import { configure } from '@remcostoeten/drizzleasy'
@@ -195,10 +216,12 @@ configure(db, schema)
 React hook for optimistic updates.
 
 ```typescript
-function useOptimisticCrud<T extends TEntity>(initialData: T[]): {
-  data: T[]
-  isPending: boolean
-  optimisticCreate: (newItem: Omit<T, 'id'>, serverAction: () => Promise<TResult<T[]>>) => void
+function useOptimisticCrud<T extends TEntity>(
+    initialData: T[]
+): {
+    data: T[]
+    isPending: boolean
+    optimisticCreate: (newItem: Omit<T, 'id'>, serverAction: () => Promise<TResult<T[]>>) => void
 }
 ```
 
@@ -218,9 +241,9 @@ Base entity type that all database records must extend.
 
 ```typescript
 type TEntity = {
-  id: string | number
-  createdAt?: string | Date
-  updatedAt?: string | Date
+    id: string | number
+    createdAt?: string | Date
+    updatedAt?: string | Date
 }
 ```
 
@@ -246,8 +269,8 @@ Standard result format for all operations.
 
 ```typescript
 type TResult<T> = {
-  data?: T
-  error?: Error
+    data?: T
+    error?: Error
 }
 ```
 
@@ -257,7 +280,7 @@ Entity type with required timestamps.
 
 ```typescript
 type TTimestamped = TEntity & {
-  createdAt: string | Date
-  updatedAt: string | Date
+    createdAt: string | Date
+    updatedAt: string | Date
 }
 ```
