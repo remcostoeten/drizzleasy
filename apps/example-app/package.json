@@ -15,7 +15,6 @@
     "cli": "node ../../apps/drizzleasy/bin/drizzleasy"
   },
   "dependencies": {
-    "@t3-oss/env-nextjs": "^0.13.8",
     "drizzle-orm": "^0.44.5",
     "nanoid": "^5.0.0",
     "next": "15.5.3",
