@@ -18,6 +18,7 @@
         "clean": "turbo run clean",
         "type-check": "turbo run type-check",
         "release": "python3 scripts/release-cli",
+        "release:simple": "./scripts/create-release.sh",
         "gemini": "python3 scripts/gemini-cli",
         "cli": "cd apps/drizzleasy && (test -f dist/cli/index.js || bun run build) && node bin/drizzleasy",
         "cli:build": "cd apps/drizzleasy && bun run build",

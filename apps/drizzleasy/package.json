@@ -98,7 +98,7 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "prepublishOnly": "bun run clean && bun run build && bun run test",
-        "release": "bun run prepublishOnly && bun publish"
+        "release": "bun run prepublishOnly && echo 'Use the release CLI: python3 scripts/release-cli' && echo 'Or create a tag manually: git tag v$(node -p \"require('./package.json').version\") && git push origin v$(node -p \"require('./package.json').version\")'"
     },
     "publishConfig": {
         "access": "public"

@@ -5,6 +5,7 @@ import { colors } from '../ui/colors'
 import { clearDatabase } from './clear-database'
 import { generateAndPushSchema } from './generate-and-push'
 import { generateRandomSchema } from './generate-schema'
+import { viewTables } from './view-tables'
 import type { TCommand } from 'cli-types'
 
 /**
