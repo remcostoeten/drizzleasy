@@ -1,5 +1,5 @@
 import { DrizzleasyError } from '../utils/error-factory'
-import type { TEnhancedResult } from '../types/errors'
+import type { TEnhancedResult, TEnhancedError } from '../types/errors'
 
 /**
  * Configuration for enhanced execute
@@ -69,9 +69,9 @@ export async function enhancedExecute<T>(
         
         // Convert to enhanced error
         let enhancedError
-        if (error && typeof error === 'object' && 'type' in error) {
+        if (error && typeof error === 'object' && 'type' in error && 'message' in error && 'code' in error) {
             // Already an enhanced error
-            enhancedError = error
+            enhancedError = error as TEnhancedError
         } else {
             // Convert database/other errors
             enhancedError = DrizzleasyError.fromDatabaseError(error, table, operation)

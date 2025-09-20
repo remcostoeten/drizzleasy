@@ -102,9 +102,9 @@ export const batch = {
             const idField = (table as any).id
             const isNumericId = idField && isNumericIdField(idField)
             
-            async function processItems(items: typeof items) {
-                for (let i = 0; i < items.length; i += chunkSize) {
-                    const chunk = items.slice(i, i + chunkSize)
+            async function processItems(itemsToProcess: Array<Omit<TInsert, 'id' | 'createdAt' | 'updatedAt'> & { id?: TInsert['id'] }>) {
+                for (let i = 0; i < itemsToProcess.length; i += chunkSize) {
+                    const chunk = itemsToProcess.slice(i, i + chunkSize)
                     
                     for (let j = 0; j < chunk.length; j++) {
                         const itemIndex = i + j

@@ -1,4 +1,4 @@
-import { eq, and, gt, gte, lt, lte, ne, inArray, like, count as drizzleCount } from 'drizzle-orm'
+import { eq, and, gt, gte, lt, lte, ne, inArray, like, sql } from 'drizzle-orm'
 import { getDb, getOptions } from '../config'
 import { safeExecute } from './execute'
 import { generateId, isNumericIdField } from '../utils/id-generator'
@@ -209,12 +209,13 @@ export const tableCrud = {
                 // Get total count if requested
                 let totalCount: number | undefined
                 if (includeTotalCount) {
-                    let countQuery = db.select({ count: drizzleCount() }).from(table)
+                    // For now, fetch all and count (TODO: optimize with proper count query)
+                    let countQuery = db.select().from(table)
                     if (whereConditions.length > 0) {
                         countQuery = countQuery.where(and(...whereConditions))
                     }
-                    const [{ count }] = await countQuery
-                    totalCount = Number(count)
+                    const allRows = await countQuery
+                    totalCount = allRows.length
                 }
                 
                 const firstItemIndex = data.length > 0 ? offset + 1 : 0

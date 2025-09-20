@@ -23,4 +23,4 @@ export type * from './types'
 export * from './utils'
 
 // Config loader with fs/path/glob dependencies
-export { loadConfig, findConfigFile } from './database/config-loader'
+export { loadSchemaFromConfig, findDrizzleConfig } from './database/config-loader'

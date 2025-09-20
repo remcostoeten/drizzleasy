@@ -13,13 +13,12 @@ export type * from './types'
 
 // Browser-safe utilities only
 export { 
-    CustomError,
+    DrizzleasyError,
     ValidationError,
-    NotFoundError,
-    PermissionError,
-    DatabaseError,
-    NetworkError,
-    handleError 
+    DatabaseConnectionError,
+    OperationError,
+    handleAsyncError,
+    logError
 } from './utils/error-handler'
 
 // Re-export performance utilities (browser-safe)
