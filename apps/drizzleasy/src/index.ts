@@ -51,6 +51,12 @@ export { useOptimisticCrud, withTransition } from './client'
 export type * from './types'
 
 /**
+ * Production utilities for error handling, performance monitoring, and environment validation.
+ * @see ./utils
+ */
+export * from './utils'
+
+/**
  * CLI interface for programmatic CRUD or setup operations.
  * @example
  * ```bash
