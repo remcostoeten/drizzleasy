@@ -6,7 +6,7 @@
  */
 
 // Main CRUD interface
-export { crud, legacyCrud, batch, enhancedExecute, executeWithRetry } from './core'
+export { crud, batch, execute, executeWithRetry } from './core'
 export type { TBatchResult, TBatchOptions, TExecuteOptions } from './core'
 
 // Database initialization and configuration
@@ -14,7 +14,6 @@ export { initializeConnection } from './database'
 export { configure } from './config'
 
 // Factory functions (deprecated but included for compatibility)
-export { createFn, readFn, updateFn, destroyFn } from './factory'
 
 // Types
 export type * from './types'

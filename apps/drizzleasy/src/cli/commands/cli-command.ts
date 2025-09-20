@@ -18,7 +18,7 @@ export const cliCommand: TCommand = {
       return 
     }
     
-    intro('0.1.0')
+    intro('0.13.0')
     
     const mainMenu = menu({
       title: '🌱 Drizzleasy CLI',

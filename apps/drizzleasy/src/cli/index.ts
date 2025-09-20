@@ -17,7 +17,7 @@ import { cliCommand } from './commands/cli-command'
 export function run() {
     const drizzleasy = cli({
         name: 'drizzleasy',
-        version: '0.1.0',
+        version: '0.13.0',
         description: 'Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM',
         commands: {
             seed: cliCommand

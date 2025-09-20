@@ -1,15 +1,14 @@
 /**
  * Drizzleasy - Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM
  *
- * Provides a set of utilities and factory functions to quickly perform
- * typed CRUD operations, manage database connections, and handle
- * client-side optimistic updates.
+ * Provides table-first CRUD operations with zero-generics type inference,
+ * database connection management, and client-side optimistic updates.
  *
  * @module drizzleasy
  */
 
 /**
- * Main CRUD interface for performing basic create, read, update, and delete operations.
+ * Main CRUD interface with table-first API and full type safety.
  * @see ./core
  */
 export { crud } from './core'
@@ -28,14 +27,6 @@ export { initializeConnection } from './database'
  * @see ./config
  */
 export { configure } from './config'
-
-/**
- * Factory function to create a type-safe `create` function for a given entity.
- * @template T
- * @returns {Function} A `create` function for the entity type `T`.
- * @see ./factory
- */
-export { createFn, readFn, updateFn, destroyFn } from './factory'
 
 /**
  * Hook to perform optimistic CRUD operations on the client side.

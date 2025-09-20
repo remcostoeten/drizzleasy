@@ -1,6 +1,6 @@
 import { getDb, getOptions } from '../config'
 import { generateId, isNumericIdField } from '../utils/id-generator'
-import { safeExecute } from './execute'
+import { execute } from './execute'
 import { eq } from 'drizzle-orm'
 
 /**

@@ -1,8 +1,8 @@
-import { eq, and, gt, gte, lt, lte, ne, inArray, like, sql } from 'drizzle-orm'
+import { eq, and, gt, gte, lt, lte, ne, inArray, like, sql, count } from 'drizzle-orm'
 import { getDb, getOptions } from '../config'
-import { safeExecute } from './execute'
+import { execute } from './execute'
 import { generateId, isNumericIdField } from '../utils/id-generator'
-import type { TResult } from '../types/operations'
+import type { TEnhancedResult } from '../types/errors'
 import type { TPaginationOptions, TCursorOptions, TPaginatedResult, TCursorResult } from '../types/pagination'
 
 /**
@@ -45,8 +45,8 @@ export const tableCrud = {
         
         return async function (
             data: Omit<TInsert, 'id' | 'createdAt' | 'updatedAt'> & { id?: TInsert['id'] }
-        ): Promise<TResult<TSelect[]>> {
-            return safeExecute(async () => {
+        ): Promise<TEnhancedResult<TSelect[]>> {
+            return execute(async () => {
                 const db = getDb()
                 const options = getOptions()
                 const tableName = (table as any).constructor.name || 'table'
@@ -114,8 +114,8 @@ export const tableCrud = {
             /**
              * Find a single record by ID
              */
-            async byId(id: string | number): Promise<TResult<TSelect | null>> {
-                return safeExecute(async () => {
+            async byId(id: string | number): Promise<TEnhancedResult<TSelect | null>> {
+                return execute(async () => {
                     const db = getDb()
                     const result = await db
                         .select()
@@ -188,7 +188,7 @@ export const tableCrud = {
                 // Apply ordering if specified
                 if ((queryBuilder as any)._orderBy) {
                     const { field, direction } = (queryBuilder as any)._orderBy
-                    const column = table[field as string]
+                    const column = table[String(field)]
                     if (column) {
                         dataQuery = direction === 'desc' 
                             ? dataQuery.orderBy(column.desc())
@@ -311,8 +311,8 @@ export const tableCrud = {
         }
         
         // Make it callable to execute the query
-        const callable = async (): Promise<TResult<TSelect[]>> => {
-            return safeExecute(async () => {
+        const callable = async (): Promise<TEnhancedResult<TSelect[]>> => {
+            return execute(async () => {
                 const db = getDb()
                 let query = db.select().from(table)
                 
@@ -323,7 +323,7 @@ export const tableCrud = {
                 // Apply ordering if specified
                 if ((queryBuilder as any)._orderBy) {
                     const { field, direction } = (queryBuilder as any)._orderBy
-                    const column = table[field as string]
+                    const column = table[String(field)]
                     if (column) {
                         query = direction === 'desc' 
                             ? query.orderBy(column.desc())
@@ -348,6 +348,7 @@ export const tableCrud = {
         return Object.assign(callable, queryBuilder)
     },
     
+    
     /**
      * Update an existing record by ID.
      * 
@@ -361,8 +362,8 @@ export const tableCrud = {
         return async function (
             id: string | number,
             data: Partial<Omit<TInsert, 'id' | 'createdAt'>>
-        ): Promise<TResult<TSelect[]>> {
-            return safeExecute(async () => {
+        ): Promise<TEnhancedResult<TSelect[]>> {
+            return execute(async () => {
                 const db = getDb()
                 
                 const updateData: any = { ...data }
@@ -392,8 +393,8 @@ export const tableCrud = {
     destroy<TTable extends Record<string, any>>(table: TTable) {
         type TSelect = typeof table.$inferSelect
         
-        return async function (id: string | number): Promise<TResult<TSelect[]>> {
-            return safeExecute(async () => {
+        return async function (id: string | number): Promise<TEnhancedResult<TSelect[]>> {
+            return execute(async () => {
                 const db = getDb()
                 const result = await db
                     .delete(table)

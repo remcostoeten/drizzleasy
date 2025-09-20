@@ -1,6 +1,6 @@
 {
     "name": "@remcostoeten/drizzleasy",
-    "version": "1.0.0",
+    "version": "0.14.0",
     "description": "Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM",
     "type": "module",
     "main": "dist/index.js",
@@ -16,11 +16,6 @@
             "types": "./dist/server.d.ts",
             "import": "./dist/server.js",
             "require": "./dist/server.cjs"
-        },
-        "./legacy": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs"
         }
     },
     "files": [

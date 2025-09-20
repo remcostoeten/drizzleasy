@@ -1,39 +1,65 @@
 import { describe, test, expect, vi } from 'vitest'
-import { safeExecute } from '../core/execute'
+import { execute } from '../core/execute'
 
-describe('Safe Execute', () => {
-    test('wraps successful operations in result format', async () => {
-        const result = await safeExecute(async () => {
+describe('Execute', () => {
+    test('wraps successful operations in enhanced result format', async () => {
+        const result = await execute(async () => {
             return 'success'
         })
 
         expect(result).toEqual({
             data: 'success',
-            error: undefined
+            meta: expect.objectContaining({
+                duration: expect.any(Number),
+                cached: false,
+                operation: undefined,
+                affected: undefined
+            })
         })
     })
 
-    test('wraps thrown errors in result format', async () => {
-        const result = await safeExecute(async () => {
+    test('wraps thrown errors in enhanced result format', async () => {
+        const result = await execute(async () => {
             throw new Error('Something went wrong')
         })
 
         expect(result).toEqual({
-            data: undefined,
             error: expect.objectContaining({
-                message: 'Something went wrong'
+                message: 'Something went wrong',
+                type: expect.any(String),
+                code: expect.any(String),
+                retryable: expect.any(Boolean),
+                timestamp: expect.any(Date)
+            }),
+            meta: expect.objectContaining({
+                duration: expect.any(Number),
+                cached: false,
+                operation: undefined
             })
         })
     })
 
     test('handles non-Error thrown values', async () => {
-        const result = await safeExecute(async () => {
+        const result = await execute(async () => {
             throw 'String error'
         })
 
         expect(result).toEqual({
-            data: undefined,
-            error: 'String error'
+            error: expect.objectContaining({
+                message: 'String error',
+                type: 'DATABASE',
+                code: 'DATABASE_ERROR',
+                retryable: true,
+                timestamp: expect.any(Date),
+                details: expect.objectContaining({
+                    originalError: 'String error'
+                })
+            }),
+            meta: expect.objectContaining({
+                duration: expect.any(Number),
+                cached: false,
+                operation: undefined
+            })
         })
     })
 })
