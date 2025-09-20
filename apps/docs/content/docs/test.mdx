@@ -7,6 +7,7 @@ description: Client and server building blocks when using Drizzleasy.
 
 ```ts title=components/TodoList.tsx
 'use client'
+
 import { useOptimisticCrud, createFn } from '@remcostoeten/drizzleasy'
 
 type TTodo = { id: string; title: string; completed: boolean }
@@ -37,6 +38,7 @@ export function TodoList(props: TProps) {
 
 ```ts title=components/SaveButton.tsx
 'use client'
+
 import { withTransition } from '@remcostoeten/drizzleasy'
 
 async function saveUserAction() {
