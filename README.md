@@ -1,4 +1,4 @@
-# Drizzleasy
+# Drizzleasy v1.0 🚀
 
 [![npm version](https://badge.fury.io/js/drizzleasy.svg)](https://badge.fury.io/js/@remcostoeten/drizzleasy)
 [![npm downloads](https://img.shields.io/npm/dm/@remcostoeten/drizzleasy.svg)](https://www.npmjs.com/package/@remcostoeten/drizzleasy)
@@ -7,26 +7,27 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/remcostoeten/drizzleasy.svg?style=social)](https://github.com/remcostoeten/drizzleasy)
 
-Drizzleasy is a library to make CRUD operations and database management ridiculously easy. 100%
-typesafe with full LSP support in your editor due to the chainable syntax.
+**Zero-generics, table-first CRUD for Drizzle ORM.** Pass your table, get perfect types. No `<T>` in sight.
 
-### Quick Example
+## ✨ New in v1.0: Table-First API
 
-```ts
-type TUser = { id: string; email: string; isPremium: boolean }
-const read = readFn<TUser>()
-const create = createFn<TUser>()
+```typescript
+import { crud } from '@remcostoeten/drizzleasy/server'
+import { schema } from './schema'
 
-// Create new user
-const { data: newUser } = await create('users')({
-    email: formData.get('email'),
-    isPremium: formData.get('premium') === 'true'
+// No generics needed! Types inferred from your table
+const { data } = await crud.create(schema.users)({
+    name: 'John',
+    email: 'john@example.com'
+    // id generated automatically (nanoid/uuid/etc)
 })
 
-// Query premium users
-const { data: premiumUsers } = await read('users').where({ isPremium: true })()
-
-return { newUser, premiumUsers }
+// Chainable query builder
+const { data: premiumUsers } = await crud.read(schema.users)
+    .where({ isPremium: true })
+    .where({ age: '>18' })
+    .orderBy('createdAt', 'desc')
+    .paginate({ page: 1, pageSize: 20 })
 ```
 
 For full docs and examples visit [drizzleasy.vercel.app](https://drizzleasy.vercel.app)
