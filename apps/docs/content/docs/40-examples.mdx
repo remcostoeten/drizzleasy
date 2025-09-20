@@ -7,9 +7,9 @@ description: Practical examples and patterns.
 
 Schema and CRUD with optimistic UI.
 
-```ts
-// server/actions/todos.ts
+```ts title=server/actions/todos.ts
 'use server'
+
 import { revalidatePath } from 'next/cache'
 import { createFn, readFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
 
@@ -51,9 +51,9 @@ export async function deleteTodo(id: string) {
 }
 ```
 
-```tsx
-// components/TodoList.tsx
+```tsx title=components/TodoList.tsx
 'use client'
+
 import { useOptimisticCrud } from '@remcostoeten/drizzleasy'
 import { createTodo, toggleTodo, deleteTodo } from '@/server/actions/todos'
 

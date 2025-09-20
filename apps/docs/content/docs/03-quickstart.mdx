@@ -5,7 +5,7 @@ description: Minimal patterns to read and write data with Drizzleasy.
 
 ## Define your types
 
-```ts
+```ts filename=types/user.ts
 type TUser = {
   id: string
   name: string
@@ -17,7 +17,7 @@ type TUser = {
 
 ## Create typed factories
 
-```ts
+```ts filename=lib/crud.ts
 import { createFn, readFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
 
 function createCrud() {
@@ -31,7 +31,7 @@ function createCrud() {
 
 ## Create
 
-```ts
+```ts filename=app/actions/users.ts
 const { create } = createCrud()
 
 async function createUser() {
@@ -46,7 +46,7 @@ async function createUser() {
 
 ## Read
 
-```ts
+```ts filename=lib/read-users.ts
 const { read } = createCrud()
 
 async function listUsers() {
@@ -66,7 +66,7 @@ async function getUserById(id: string) {
 
 ## Update
 
-```ts
+```ts filename=app/actions/users.ts
 const { update } = createCrud()
 
 async function deactivateUser(id: string) {
@@ -76,7 +76,7 @@ async function deactivateUser(id: string) {
 
 ## Delete
 
-```ts
+```ts filename=app/actions/users.ts
 const { destroy } = createCrud()
 
 async function deleteUser(id: string) {

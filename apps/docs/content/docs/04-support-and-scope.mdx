@@ -1,0 +1,37 @@
+---
+title: Support & Scope
+description: What Drizzleasy supports today and what’s out-of-scope.
+---
+
+## Supported
+
+- Databases
+  - PostgreSQL (Neon, Vercel Postgres, Supabase, local Postgres)
+  - SQLite (file or memory)
+  - Turso / LibSQL (requires auth token)
+- Platforms & tooling
+  - Node.js 18+
+  - Next.js 14 or 15
+  - React 18 or 19
+  - Drizzle ORM ^0.44.0
+  - ESM and CJS usage
+- Features
+  - Typed CRUD helpers and factories
+  - Natural WHERE operators (`>`, `>=`, `<`, `<=`, `!`, contains/startsWith/endsWith, IN arrays)
+  - Consistent result shape: `{ data?, error? }`
+  - Optimistic React hook and transition helper
+  - Production utilities (error handling, performance metrics, environment helpers)
+
+## Not (yet) supported / Out-of-scope
+
+- Client-side database access (use server actions)
+- Auto-generated REST API routes (use server actions directly)
+- Migrations (use Drizzle Kit)
+- Advanced SQL composition helpers (joins, group by, order by)
+- OR conditions in `.where()` chains (chaining combines with AND); use Drizzle directly for complex filters
+- Pagination helpers; use Drizzle directly or wrap your own
+- Transaction helpers; use Drizzle’s transaction API
+
+## Philosophy
+
+Drizzleasy aims to be a tiny helper layer you can adopt incrementally. It shouldn’t limit what you can do with Drizzle — it just removes friction for the 80% cases and stays out of the way for the rest.

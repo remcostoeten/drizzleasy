@@ -5,18 +5,17 @@ description: Conventions for predictable, production-ready apps using Drizzleasy
 
 ## Architecture
 
-- Use server functions → server actions → direct DB access
-- Do not create REST API routes for CRUD; call server actions directly
-- Never access the database on the client
+- Prefer server actions for mutations; read on the server for SSR/SSG
+- Avoid creating separate REST routes when you can call server actions directly
+- Do not access the database on the client
 
 ## Coding style (TypeScript + Next.js)
 
-- Use function declarations only: `function doSomething() {}`
-- Prefer pure functions and immutable data
-- Use named exports only (no default exports), except for Next.js pages/views
-- Use `type` exclusively, and prefix all types with `T` (e.g., `type TUser = { ... }`)
-- For React component prop types containing a single local type, name it `TProps`
-- Use reducers for complex multi-step UI state; keep reducers pure
+- Prefer pure functions and immutable data for predictability
+- Type everything (entities, inputs, results)
+- Consider named exports (common in libraries); Next.js pages/views can be default exports
+- Keep complex UI state in reducers; keep reducers pure
+- Organize server actions close to the domain they modify
 
 ## Server actions
 

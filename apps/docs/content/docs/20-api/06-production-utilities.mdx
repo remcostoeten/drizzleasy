@@ -7,7 +7,7 @@ Utilities exported from `@remcostoeten/drizzleasy/utils`.
 
 ## Error handling
 
-```ts
+```ts filename=lib/errors.ts
 import {
   DrizzleasyError,
   DatabaseConnectionError,
@@ -28,7 +28,7 @@ function handle() {
 
 Wrap async operations:
 
-```ts
+```ts filename=lib/handle-async.ts
 import { handleAsyncError } from '@remcostoeten/drizzleasy'
 
 async function run<T>(op: () => Promise<T>) {
@@ -38,7 +38,7 @@ async function run<T>(op: () => Promise<T>) {
 
 ## Performance metrics
 
-```ts
+```ts filename=lib/perf.ts
 import { measurePerformance, getPerformanceMetrics, getAverageOperationTime, getOperationSuccessRate } from '@remcostoeten/drizzleasy'
 
 async function loadUsers() {
@@ -56,7 +56,7 @@ function report() {
 
 ## Environment
 
-```ts
+```ts filename=lib/env.ts
 import { getEnvironment, validateDatabaseEnvironment, getOptimalConfiguration, getDeploymentPlatform } from '@remcostoeten/drizzleasy'
 
 function readEnv() {

@@ -7,7 +7,7 @@ Drizzleasy provides ultra-simple, type-safe CRUD operations on top of Drizzle OR
 
 ## Install
 
-```bash
+```bash filename=shell
 npm install @remcostoeten/drizzleasy
 # or
 pnpm add @remcostoeten/drizzleasy
@@ -25,7 +25,7 @@ You can let Drizzleasy auto-detect your setup or configure it manually.
 
 ### Option A — Auto-detect (recommended)
 
-```ts
+```ts filename=app/setup/db.ts
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 
 async function bootstrap() {
@@ -38,7 +38,7 @@ async function bootstrap() {
 
 Turso (libsql) requires an auth token:
 
-```ts
+```ts filename=app/setup/db.turso.ts
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 
 async function bootstrapTurso() {
@@ -50,7 +50,7 @@ async function bootstrapTurso() {
 
 Environment switching:
 
-```ts
+```ts filename=app/setup/db.env.ts
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 
 async function bootstrapEnv() {
@@ -63,7 +63,7 @@ async function bootstrapEnv() {
 
 ### Option B — Manual configure
 
-```ts
+```ts filename=app/setup/manual-config.ts
 import { configure } from '@remcostoeten/drizzleasy'
 import { drizzle } from 'drizzle-orm/neon-http'
 import * as schema from './schema'
@@ -76,7 +76,7 @@ function setup() {
 
 ## First CRUD in a Next.js Server Action
 
-```ts
+```ts filename=app/actions/signups.ts
 'use server'
 import { createFn, readFn } from '@remcostoeten/drizzleasy'
 

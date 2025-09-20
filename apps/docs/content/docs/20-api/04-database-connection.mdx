@@ -9,7 +9,7 @@ import { initializeConnection } from '@remcostoeten/drizzleasy'
 
 ## Single database
 
-```ts
+```ts filename=app/setup/connect.ts
 async function connect() {
   const db = await initializeConnection(process.env.DATABASE_URL!)
 }
@@ -17,7 +17,7 @@ async function connect() {
 
 ## Turso / LibSQL
 
-```ts
+```ts filename=app/setup/connect.turso.ts
 async function connectTurso() {
   const db = await initializeConnection(process.env.DATABASE_URL!, {
     authToken: process.env.TURSO_AUTH_TOKEN!
@@ -27,7 +27,7 @@ async function connectTurso() {
 
 ## Environment switching
 
-```ts
+```ts filename=app/setup/connect.env.ts
 async function connectByEnv() {
   const db = await initializeConnection({
     development: 'file:./dev.db',
@@ -39,7 +39,7 @@ async function connectByEnv() {
 
 ## Multiple named databases
 
-```ts
+```ts filename=app/setup/connect.multiple.ts
 async function connectMultiple() {
   const dbs = await initializeConnection({
     main: process.env.DATABASE_URL!,

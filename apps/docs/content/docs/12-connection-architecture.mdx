@@ -1,0 +1,95 @@
+---
+title: Smart Connection Architecture
+description: How provider detection, schema loading, and connection caching work.
+---
+
+Drizzleasy includes a smart connection initializer that:
+
+- Detects provider from URL (Postgres, SQLite, Turso/LibSQL)
+- Loads your schema from drizzle.config (glob patterns supported)
+- Caches connections by URL and environment to avoid re-connecting
+- Tunes production defaults (timeouts, sync intervals) based on environment and provider
+
+## Provider detection
+
+```ts filename=apps/drizzleasy/src/database/index.ts
+// Simplified detection
+if (url.startsWith('libsql://')) {
+  // Turso: requires authToken
+} else if (url.startsWith('postgresql://') || url.startsWith('postgres://')) {
+  // Postgres: local vs cloud heuristic
+  const isLocal = url.includes('localhost') || url.includes('127.0.0.1') || url.includes(':5432')
+} else if (url.startsWith('file:') || (!url.includes('://') && url.endsWith('.db'))) {
+  // SQLite
+} else {
+  throw new Error('Unsupported database URL format')
+}
+```
+
+- Turso / LibSQL requires an auth token (set via options or TURSO_AUTH_TOKEN)
+- Local Postgres is detected by common local indicators (host/port)
+- SQLite supports file: URLs and plain paths ending in .db
+
+## Schema loading from drizzle.config
+
+```ts filename=apps/drizzleasy/src/database/config-loader.ts
+export async function loadSchemaFromConfig(): Promise<any> {
+  const configPath = findDrizzleConfig()
+  const config = await import(configPath)
+  const drizzleConfig = config.default
+  const schemaFiles = await resolveSchemaFiles(drizzleConfig.schema)
+  const schemas = await Promise.all(schemaFiles.map(file => import(resolve(process.cwd(), file))))
+  return mergeSchemas(schemas)
+}
+```
+
+- Accepts a file path or glob array in drizzle.config
+- Merges all exported tables into a single schema object
+
+## Connection caching
+
+```ts filename=apps/drizzleasy/src/database/index.ts
+const connectionCache = new Map<string, any>()
+
+async function createSingleConnection(url: string, options?: { authToken?: string }, ns = 'default') {
+  const cacheKey = `${ns}:${url}:${options?.authToken || ''}`
+  if (connectionCache.has(cacheKey)) return connectionCache.get(cacheKey)
+  // ... create provider-specific connection, then cache
+  connectionCache.set(cacheKey, connection)
+  return connection
+}
+```
+
+- Avoids re-creating connections in long-lived server processes
+- Namespaced by environment (env switching uses a separate namespace)
+
+## Production-aware tuning
+
+```ts filename=apps/drizzleasy/src/utils/environment.ts
+export function getOptimalConfiguration() {
+  // Defaults vary by NODE_ENV and provider
+  // e.g. more connections and lower timeouts in production
+}
+```
+
+- Lower timeouts and higher connection caps in production
+- Optional sync interval for Turso to balance latency and freshness
+
+## Multiple databases and env switching
+
+```ts filename=app/setup/connection.ts
+import { initializeConnection } from '@remcostoeten/drizzleasy'
+
+// Multiple named databases
+const dbs = await initializeConnection({
+  main: process.env.DATABASE_URL!,
+  analytics: process.env.ANALYTICS_URL!,
+  cache: 'file:./cache.db'
+})
+
+// Environment-based switching
+const db = await initializeConnection({
+  development: 'file:./dev.db',
+  production: process.env.DATABASE_URL!
+})
+```

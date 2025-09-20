@@ -5,7 +5,7 @@ description: Shared types used across Drizzleasy.
 
 ## TResult
 
-```ts
+```ts filename=types/result.ts
 type TResult<T> = {
   data?: T
   error?: Error
@@ -14,7 +14,7 @@ type TResult<T> = {
 
 ## TEntity
 
-```ts
+```ts filename=types/entity.ts
 type TEntity = {
   id: string | number
   createdAt?: string | Date
@@ -24,7 +24,7 @@ type TEntity = {
 
 ## TCreateInput / TUpdateInput
 
-```ts
+```ts filename=types/inputs.ts
 type TCreateInput<T extends TEntity> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>
 
 type TUpdateInput<T extends TEntity> = Partial<Omit<T, 'id' | 'createdAt'>>
@@ -32,7 +32,7 @@ type TUpdateInput<T extends TEntity> = Partial<Omit<T, 'id' | 'createdAt'>>
 
 ## WHERE types
 
-```ts
+```ts filename=types/where.ts
 type TWhereClause<T> = {
   [K in keyof T]?:
     | T[K]
