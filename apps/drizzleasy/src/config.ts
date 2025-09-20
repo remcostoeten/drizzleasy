@@ -1,7 +1,14 @@
 import type { TDatabase, TSchema } from './types'
+import type { TDrizzleasyOptions } from './types/id-strategy'
 
 let db: TDatabase | null = null
 let schema: TSchema | null = null
+let options: TDrizzleasyOptions = {
+    id: {
+        default: 'nanoid',
+        detect: true
+    }
+}
 
 /**
  * Configure the database connection and schema for CRUD operations.
@@ -11,6 +18,7 @@ let schema: TSchema | null = null
  * @template S - Schema type (Drizzle schema object)
  * @param database - Drizzle database instance
  * @param schemaObj - Schema object containing table definitions
+ * @param opts - Optional configuration options
  *
  * @example
  * ```typescript
@@ -19,15 +27,28 @@ let schema: TSchema | null = null
  * import * as schema from './schema'
  *
  * const db = drizzle(process.env.DATABASE_URL!)
- * configure(db, schema)
+ * configure(db, schema, {
+ *   id: {
+ *     default: 'nanoid',
+ *     tables: { users: 'uuid' },
+ *     detect: true
+ *   }
+ * })
  *
  * // Now you can use CRUD operations
  * const users = await crud.read<User>('users')()
  * ```
  */
-function configure<T extends TDatabase, S extends TSchema>(database: T, schemaObj: S) {
+function configure<T extends TDatabase, S extends TSchema>(
+    database: T, 
+    schemaObj: S,
+    opts?: TDrizzleasyOptions
+) {
     db = database
     schema = schemaObj
+    if (opts) {
+        options = { ...options, ...opts }
+    }
 }
 
 /**
@@ -53,6 +74,14 @@ function getSchema(): TSchema {
 }
 
 /**
+ * Get the configured options.
+ * @internal
+ */
+function getOptions(): TDrizzleasyOptions {
+    return options
+}
+
+/**
  * Validate that a table exists in the schema.
  * @internal
  */
@@ -64,4 +93,4 @@ function validateTableName(tableName: string, schema: TSchema): void {
     }
 }
 
-export { configure, getDb, getSchema, validateTableName }
+export { configure, getDb, getSchema, getOptions, validateTableName }
