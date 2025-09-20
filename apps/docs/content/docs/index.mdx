@@ -19,18 +19,19 @@ Shipping data features should feel boring and predictable. Drizzleasy gives you 
 - Optional client helpers for optimistic UI in React
 - A thin layer that never locks you in — drop to Drizzle any time
 
-```bash filename=shell
+```bash title=shell
 npm install @remcostoeten/drizzleasy
 ```
 
-```ts filename=app/db-connection.ts
+```ts title=app/db-connection.ts
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 
 export const db = await initializeConnection(process.env.DATABASE_URL!)
 ```
 
-```ts filename=app/actions/users.ts
+```ts title=app/actions/users.ts
 'use server'
+
 import { createFn, readFn } from '@remcostoeten/drizzleasy'
 
 type TUser = { id: string; name: string; email: string; status: 'active' | 'inactive' }
