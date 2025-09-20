@@ -7,3 +7,7 @@ export { tableCrud as crud } from './table-crud'
 // Batch operations
 export { batch } from './batch'
 export type { TBatchResult, TBatchOptions } from './batch'
+
+// Enhanced error handling
+export { enhancedExecute, executeWithRetry } from './enhanced-execute'
+export type { TExecuteOptions } from './enhanced-execute'

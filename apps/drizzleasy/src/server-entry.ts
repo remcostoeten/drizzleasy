@@ -6,8 +6,8 @@
  */
 
 // Main CRUD interface
-export { crud, legacyCrud, batch } from './core'
-export type { TBatchResult, TBatchOptions } from './core'
+export { crud, legacyCrud, batch, enhancedExecute, executeWithRetry } from './core'
+export type { TBatchResult, TBatchOptions, TExecuteOptions } from './core'
 
 // Database initialization and configuration
 export { initializeConnection } from './database'
