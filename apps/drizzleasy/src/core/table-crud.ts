@@ -1,8 +1,9 @@
-import { eq, and, gt, gte, lt, lte, ne, inArray, like } from 'drizzle-orm'
+import { eq, and, gt, gte, lt, lte, ne, inArray, like, count as drizzleCount } from 'drizzle-orm'
 import { getDb, getOptions } from '../config'
 import { safeExecute } from './execute'
 import { generateId, isNumericIdField } from '../utils/id-generator'
 import type { TResult } from '../types/operations'
+import type { TPaginationOptions, TCursorOptions, TPaginatedResult, TCursorResult } from '../types/pagination'
 
 /**
  * Table-first CRUD operations with zero-generics type inference.
@@ -148,6 +149,163 @@ export const tableCrud = {
             orderBy(field: keyof TSelect, direction: 'asc' | 'desc' = 'asc') {
                 const newBuilder = { ...queryBuilder, _orderBy: { field, direction } }
                 return Object.assign(callable, newBuilder)
+            },
+            
+            /**
+             * Paginate results with offset-based pagination
+             * 
+             * @param options - Pagination options or page number
+             * @param pageSize - Page size if first param is page number
+             * @returns Paginated result with metadata
+             */
+            async paginate(
+                optionsOrPage: TPaginationOptions | number,
+                pageSize?: number
+            ): Promise<TPaginatedResult<TSelect>> {
+                const options: TPaginationOptions = typeof optionsOrPage === 'number'
+                    ? { page: optionsOrPage, pageSize: pageSize || 10 }
+                    : optionsOrPage
+                    
+                const { 
+                    page, 
+                    pageSize: size, 
+                    maxPageSize = 100,
+                    includeTotalCount = false 
+                } = options
+                
+                // Validate page size
+                const actualPageSize = Math.min(size, maxPageSize)
+                const offset = (page - 1) * actualPageSize
+                
+                const db = getDb()
+                
+                // Build the main query
+                let dataQuery = db.select().from(table)
+                if (whereConditions.length > 0) {
+                    dataQuery = dataQuery.where(and(...whereConditions))
+                }
+                
+                // Apply ordering if specified
+                if ((queryBuilder as any)._orderBy) {
+                    const { field, direction } = (queryBuilder as any)._orderBy
+                    const column = table[field as string]
+                    if (column) {
+                        dataQuery = direction === 'desc' 
+                            ? dataQuery.orderBy(column.desc())
+                            : dataQuery.orderBy(column)
+                    }
+                }
+                
+                // Apply pagination
+                dataQuery = dataQuery.limit(actualPageSize + 1).offset(offset)
+                const data = await dataQuery as TSelect[]
+                
+                // Check if there's a next page
+                const hasNextPage = data.length > actualPageSize
+                if (hasNextPage) {
+                    data.pop() // Remove the extra item
+                }
+                
+                // Get total count if requested
+                let totalCount: number | undefined
+                if (includeTotalCount) {
+                    let countQuery = db.select({ count: drizzleCount() }).from(table)
+                    if (whereConditions.length > 0) {
+                        countQuery = countQuery.where(and(...whereConditions))
+                    }
+                    const [{ count }] = await countQuery
+                    totalCount = Number(count)
+                }
+                
+                const firstItemIndex = data.length > 0 ? offset + 1 : 0
+                const lastItemIndex = offset + data.length
+                
+                return {
+                    data,
+                    pagination: {
+                        currentPage: page,
+                        pageSize: actualPageSize,
+                        totalCount,
+                        totalPages: totalCount ? Math.ceil(totalCount / actualPageSize) : undefined,
+                        hasNextPage,
+                        hasPreviousPage: page > 1,
+                        firstItemIndex,
+                        lastItemIndex
+                    }
+                }
+            },
+            
+            /**
+             * Paginate results with cursor-based pagination
+             * 
+             * @param options - Cursor pagination options
+             * @returns Cursor-paginated result with metadata
+             */
+            async cursorPaginate(options: TCursorOptions): Promise<TCursorResult<TSelect>> {
+                const {
+                    limit,
+                    cursor,
+                    cursorField = 'id',
+                    direction = 'forward'
+                } = options
+                
+                const db = getDb()
+                let query = db.select().from(table)
+                
+                // Apply where conditions
+                const conditions = [...whereConditions]
+                
+                // Add cursor condition if provided
+                if (cursor !== undefined) {
+                    const cursorColumn = table[cursorField as string]
+                    if (cursorColumn) {
+                        if (direction === 'forward') {
+                            conditions.push(gt(cursorColumn, cursor))
+                        } else {
+                            conditions.push(lt(cursorColumn, cursor))
+                        }
+                    }
+                }
+                
+                if (conditions.length > 0) {
+                    query = query.where(and(...conditions))
+                }
+                
+                // Apply ordering based on cursor field
+                const cursorColumn = table[cursorField as string]
+                if (cursorColumn) {
+                    query = direction === 'forward'
+                        ? query.orderBy(cursorColumn)
+                        : query.orderBy(cursorColumn.desc())
+                }
+                
+                // Fetch one extra to check for more items
+                query = query.limit(limit + 1)
+                const data = await query as TSelect[]
+                
+                // Check if there are more items
+                const hasMore = data.length > limit
+                if (hasMore) {
+                    data.pop() // Remove the extra item
+                }
+                
+                // Determine cursors
+                const nextCursor = hasMore && data.length > 0 
+                    ? (data[data.length - 1] as any)[cursorField]
+                    : undefined
+                    
+                const previousCursor = cursor // The current cursor becomes previous
+                
+                return {
+                    data,
+                    cursor: {
+                        nextCursor,
+                        previousCursor,
+                        hasNext: hasMore,
+                        hasPrevious: cursor !== undefined,
+                        count: data.length
+                    }
+                }
             }
         }
         
