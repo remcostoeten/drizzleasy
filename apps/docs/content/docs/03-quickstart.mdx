@@ -1,0 +1,85 @@
+---
+title: Quickstart
+description: Minimal patterns to read and write data with Drizzleasy.
+---
+
+## Define your types
+
+```ts
+type TUser = {
+  id: string
+  name: string
+  email: string
+  age: number
+  status: 'active' | 'inactive'
+}
+```
+
+## Create typed factories
+
+```ts
+import { createFn, readFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
+
+function createCrud() {
+  const create = createFn<TUser>()
+  const read = readFn<TUser>()
+  const update = updateFn<TUser>()
+  const destroy = destroyFn<TUser>()
+  return { create, read, update, destroy }
+}
+```
+
+## Create
+
+```ts
+const { create } = createCrud()
+
+async function createUser() {
+  return create('users')({
+    name: 'John',
+    email: 'john@example.com',
+    age: 25,
+    status: 'active'
+  })
+}
+```
+
+## Read
+
+```ts
+const { read } = createCrud()
+
+async function listUsers() {
+  return read('users')()
+}
+
+async function listActiveAdults() {
+  return read('users')
+    .where({ status: 'active' })
+    .where({ age: '>18' })()
+}
+
+async function getUserById(id: string) {
+  return read('users').byId(id)
+}
+```
+
+## Update
+
+```ts
+const { update } = createCrud()
+
+async function deactivateUser(id: string) {
+  return update('users')(id, { status: 'inactive' })
+}
+```
+
+## Delete
+
+```ts
+const { destroy } = createCrud()
+
+async function deleteUser(id: string) {
+  return destroy('users')(id)
+}
+```

@@ -1,0 +1,56 @@
+---
+title: Database Connection (initializeConnection)
+description: Auto-detect provider, load schema, and manage connections.
+---
+
+```ts
+import { initializeConnection } from '@remcostoeten/drizzleasy'
+```
+
+## Single database
+
+```ts
+async function connect() {
+  const db = await initializeConnection(process.env.DATABASE_URL!)
+}
+```
+
+## Turso / LibSQL
+
+```ts
+async function connectTurso() {
+  const db = await initializeConnection(process.env.DATABASE_URL!, {
+    authToken: process.env.TURSO_AUTH_TOKEN!
+  })
+}
+```
+
+## Environment switching
+
+```ts
+async function connectByEnv() {
+  const db = await initializeConnection({
+    development: 'file:./dev.db',
+    production: process.env.DATABASE_URL!,
+    test: 'file:./test.db'
+  })
+}
+```
+
+## Multiple named databases
+
+```ts
+async function connectMultiple() {
+  const dbs = await initializeConnection({
+    main: process.env.DATABASE_URL!,
+    analytics: process.env.ANALYTICS_URL!,
+    cache: 'file:./cache.db'
+  })
+}
+```
+
+## Provider detection
+
+- Postgres: `postgresql://`, `postgres://`
+- SQLite: `file:./db.sqlite` or `*.db`
+- Turso/LibSQL: `libsql://` (requires auth token)

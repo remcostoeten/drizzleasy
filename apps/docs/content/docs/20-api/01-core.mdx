@@ -1,0 +1,80 @@
+---
+title: Core CRUD (crud)
+description: Create, read, update, and destroy with a fluent, type-safe API.
+---
+
+## Overview
+
+```ts
+import { crud } from '@remcostoeten/drizzleasy'
+```
+
+- All operations return `{ data?, error? }`
+- `read()` is callable and supports `.where()` and `.byId()`
+
+## create()
+
+```ts
+crud.create<T>(tableName: string)(data: TCreateInput<T>): Promise<TResult<T[]>>
+```
+
+- Inserts one or more rows, returns inserted rows
+
+```ts
+type TUser = { id: string; name: string; email: string }
+
+async function createUser() {
+  return crud.create<TUser>('users')({ name: 'Jane', email: 'jane@example.com' })
+}
+```
+
+## read()
+
+```ts
+crud.read<T>(tableName: string): {
+  (): Promise<TResult<T[]>>
+  where(condition: TWhereClause<T>): any
+  byId(id: string | number): Promise<TResult<T | null>>
+}
+```
+
+```ts
+async function listUsers() {
+  return crud.read<TUser>('users')()
+}
+
+async function filtered() {
+  return crud
+    .read<TUser>('users')
+    .where({ status: 'active' })
+    .where({ name: '*john*' })()
+}
+
+async function getUser(id: string) {
+  return crud.read<TUser>('users').byId(id)
+}
+```
+
+## update()
+
+```ts
+crud.update<T>(tableName: string)(id: string | number, data: TUpdateInput<T>): Promise<TResult<T[]>>
+```
+
+```ts
+async function renameUser(id: string) {
+  return crud.update<TUser>('users')(id, { name: 'Jane' })
+}
+```
+
+## destroy()
+
+```ts
+crud.destroy<T>(tableName: string)(id: string | number): Promise<TResult<T[]>>
+```
+
+```ts
+async function removeUser(id: string) {
+  return crud.destroy<TUser>('users')(id)
+}
+```

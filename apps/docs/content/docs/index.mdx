@@ -1,0 +1,37 @@
+---
+title: Drizzleasy
+description: Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM.
+---
+
+Drizzleasy makes CRUD operations and database management ridiculously easy. 100% type-safe with chainable syntax and clean DX.
+
+```bash
+npm install @remcostoeten/drizzleasy
+```
+
+```ts
+// Quickstart
+import { initializeConnection, readFn, createFn } from '@remcostoeten/drizzleasy'
+
+type TUser = { id: string; name: string; email: string; status: 'active' | 'inactive' }
+
+async function main() {
+  const db = await initializeConnection(process.env.DATABASE_URL!)
+  const read = readFn<TUser>()
+  const create = createFn<TUser>()
+
+  await create('users')({ name: 'Jane', email: 'jane@example.com', status: 'active' })
+  const { data: users } = await read('users')()
+}
+```
+
+<Cards>
+  <Card title="Getting Started" href="/docs/01-getting-started" />
+  <Card title="Installation" href="/docs/02-installation" />
+  <Card title="Quickstart" href="/docs/03-quickstart" />
+  <Card title="WHERE Clauses" href="/docs/10-where-clauses" />
+  <Card title="API Reference" href="/docs/20-api/01-core" />
+  <Card title="Examples" href="/docs/40-examples" />
+  <Card title="Best Practices" href="/docs/50-best-practices" />
+  <Card title="CLI" href="/docs/30-cli" />
+</Cards>

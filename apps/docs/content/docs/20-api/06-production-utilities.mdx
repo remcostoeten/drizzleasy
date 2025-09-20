@@ -1,0 +1,68 @@
+---
+title: Production Utilities
+description: Error handling, performance metrics, and environment validation.
+---
+
+Utilities exported from `@remcostoeten/drizzleasy/utils`.
+
+## Error handling
+
+```ts
+import {
+  DrizzleasyError,
+  DatabaseConnectionError,
+  ValidationError,
+  OperationError,
+  handleAsyncError,
+  logError,
+} from '@remcostoeten/drizzleasy'
+
+function handle() {
+  try {
+    throw new ValidationError('Missing DATABASE_URL')
+  } catch (error) {
+    logError(error as Error)
+  }
+}
+```
+
+Wrap async operations:
+
+```ts
+import { handleAsyncError } from '@remcostoeten/drizzleasy'
+
+async function run<T>(op: () => Promise<T>) {
+  return handleAsyncError(op, 'Operation failed', 'OPERATION_FAILED')
+}
+```
+
+## Performance metrics
+
+```ts
+import { measurePerformance, getPerformanceMetrics, getAverageOperationTime, getOperationSuccessRate } from '@remcostoeten/drizzleasy'
+
+async function loadUsers() {
+  return measurePerformance('users.read', async function fetchUsers() {
+    // ... your DB call here
+    return []
+  })
+}
+
+function report() {
+  const avg = getAverageOperationTime('users.read')
+  const rate = getOperationSuccessRate('users.read')
+}
+```
+
+## Environment
+
+```ts
+import { getEnvironment, validateDatabaseEnvironment, getOptimalConfiguration, getDeploymentPlatform } from '@remcostoeten/drizzleasy'
+
+function readEnv() {
+  const env = getEnvironment()
+  const dbEnv = validateDatabaseEnvironment(false)
+  const optimal = getOptimalConfiguration()
+  const platform = getDeploymentPlatform()
+}
+```

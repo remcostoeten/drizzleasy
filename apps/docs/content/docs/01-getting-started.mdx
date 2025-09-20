@@ -1,0 +1,105 @@
+---
+title: Getting Started
+description: Install and set up Drizzleasy with Next.js and Drizzle ORM.
+---
+
+Drizzleasy provides ultra-simple, type-safe CRUD operations on top of Drizzle ORM.
+
+## Install
+
+```bash
+npm install @remcostoeten/drizzleasy
+# or
+pnpm add @remcostoeten/drizzleasy
+# or
+yarn add @remcostoeten/drizzleasy
+```
+
+Peer deps (choose the ones you use):
+- drizzle-orm
+- A database driver: @neondatabase/serverless, postgres, @libsql/client, better-sqlite3, etc.
+
+## Configure
+
+You can let Drizzleasy auto-detect your setup or configure it manually.
+
+### Option A — Auto-detect (recommended)
+
+```ts
+import { initializeConnection } from '@remcostoeten/drizzleasy'
+
+async function bootstrap() {
+  const db = await initializeConnection(process.env.DATABASE_URL!)
+}
+```
+
+- PostgreSQL, SQLite and Turso are detected from the URL
+- Your schema is loaded from drizzle.config via glob patterns
+
+Turso (libsql) requires an auth token:
+
+```ts
+import { initializeConnection } from '@remcostoeten/drizzleasy'
+
+async function bootstrapTurso() {
+  const db = await initializeConnection(process.env.DATABASE_URL!, {
+    authToken: process.env.TURSO_AUTH_TOKEN!
+  })
+}
+```
+
+Environment switching:
+
+```ts
+import { initializeConnection } from '@remcostoeten/drizzleasy'
+
+async function bootstrapEnv() {
+  const db = await initializeConnection({
+    development: 'file:./dev.db',
+    production: process.env.DATABASE_URL!
+  })
+}
+```
+
+### Option B — Manual configure
+
+```ts
+import { configure } from '@remcostoeten/drizzleasy'
+import { drizzle } from 'drizzle-orm/neon-http'
+import * as schema from './schema'
+
+function setup() {
+  const db = drizzle(process.env.DATABASE_URL!)
+  configure(db, schema)
+}
+```
+
+## First CRUD in a Next.js Server Action
+
+```ts
+'use server'
+import { createFn, readFn } from '@remcostoeten/drizzleasy'
+
+type TSignup = { id: string; email: string; newsletter: 'yes' | 'no' }
+
+export async function createSignup(formData: FormData) {
+  'use server'
+  const create = createFn<TSignup>()
+  return create('signups')({
+    email: String(formData.get('email') || ''),
+    newsletter: (String(formData.get('newsletter') || 'no') as 'yes' | 'no')
+  })
+}
+
+export async function listSignups() {
+  'use server'
+  const read = readFn<TSignup>()
+  return read('signups')()
+}
+```
+
+## Next steps
+
+- Quickstart: basic patterns and recipes
+- WHERE clauses: natural filtering
+- API: full reference of methods and types

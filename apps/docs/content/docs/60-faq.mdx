@@ -1,0 +1,25 @@
+---
+title: FAQ
+description: Answers to common questions.
+---
+
+## Does Drizzleasy work without Drizzle Kit?
+
+Yes. Drizzle Kit is recommended for schema management, but `configure(db, schema)` works with any provided Drizzle schema object.
+
+## Where should I run CRUD code?
+
+- In Next.js, run CRUD inside server actions or server-only modules
+- Do not access the database on the client
+
+## How are errors returned?
+
+Every operation returns `{ data?, error? }`. No exceptions are thrown from CRUD helpers. You can throw your own errors if desired.
+
+## How do I filter records?
+
+Use natural WHERE syntax like `age: '>18'`, `name: '*john*'`, arrays for IN, and `!value` for not equal. See WHERE Clauses.
+
+## How do I connect to Turso?
+
+Use `initializeConnection(url, { authToken })` or set `TURSO_AUTH_TOKEN` in the environment.

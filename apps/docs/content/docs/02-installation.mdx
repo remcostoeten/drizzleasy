@@ -1,0 +1,54 @@
+---
+title: Installation
+description: Install package, set environment, and verify setup.
+---
+
+## Requirements
+
+- Node.js 18+
+- Next.js 14 or 15
+- React 18 or 19
+- Drizzle ORM ^0.44.0
+
+## Install
+
+```bash
+npm install @remcostoeten/drizzleasy drizzle-orm
+```
+
+Add a database driver for your provider:
+
+```bash
+# Postgres (Neon, Vercel, Supabase, local postgres)
+npm install @neondatabase/serverless
+
+# SQLite
+npm install better-sqlite3
+
+# Turso / LibSQL
+npm install @libsql/client
+```
+
+## Environment variables
+
+```bash
+# .env
+NODE_ENV=development
+DATABASE_URL=... # postgres://..., postgresql://..., file:./db.sqlite, libsql://...
+TURSO_AUTH_TOKEN=... # only if using libsql/turso
+```
+
+## Verify installation
+
+Create a small script to confirm schema loading and connection:
+
+```ts
+import { initializeConnection } from '@remcostoeten/drizzleasy'
+
+async function main() {
+  const db = await initializeConnection(process.env.DATABASE_URL!)
+  console.log('Connected:', !!db)
+}
+
+main()
+```

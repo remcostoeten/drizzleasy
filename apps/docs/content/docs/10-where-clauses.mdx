@@ -1,0 +1,116 @@
+---
+title: WHERE Clauses
+description: Natural filtering with intuitive operators.
+---
+
+Simple filtering with natural, readable syntax.
+
+## Philosophy
+
+- `age: '>18'` instead of `age: { $gt: 18 }`
+- `name: '*john*'` instead of `name: { $contains: 'john' }`
+- `role: ['admin', 'user']` instead of `role: { $in: ['admin', 'user'] }`
+
+## Basic Usage
+
+```ts
+import { readFn } from '@remcostoeten/drizzleasy'
+
+type TUser = {
+  id: string
+  name: string
+  email: string
+  age: number
+  status: 'active' | 'inactive'
+  role: 'admin' | 'user'
+}
+
+function readUsers() {
+  return readFn<TUser>()
+}
+
+async function examples() {
+  const read = readUsers()
+  const active = await read('users').where({ status: 'active' })()
+  const admins = await read('users').where({ status: 'active' }).where({ role: 'admin' })()
+}
+```
+
+## Operators
+
+### Equality
+
+```ts
+.where({ status: 'active' })
+.where({ isActive: true })
+.where({ count: 0 })
+
+// Not equal
+.where({ status: '!inactive' })
+```
+
+### Comparison (numbers, strings, dates)
+
+```ts
+.where({ age: '>18' })
+.where({ age: '>=21' })
+.where({ price: '<100' })
+.where({ rating: '<=4.5' })
+```
+
+### String patterns
+
+```ts
+.where({ name: '*john*' })    // contains
+.where({ name: 'john*' })     // starts with
+.where({ email: '*@gmail.com' }) // ends with
+```
+
+### Arrays (IN)
+
+```ts
+.where({ role: ['admin', 'moderator'] })
+.where({ status: ['active', 'pending'] })
+```
+
+## Real Examples
+
+### E-commerce
+
+```ts
+type TProduct = { id: string; name: string; price: number; category: string; inStock: boolean; rating: number }
+
+function readProducts() {
+  return readFn<TProduct>()
+}
+
+async function affordableQuality() {
+  const read = readProducts()
+  return read('products')
+    .where({ price: '<100' })
+    .where({ inStock: true })
+    .where({ rating: '>=4.0' })
+    .where({ category: ['electronics', 'books'] })()
+}
+```
+
+### Blog search
+
+```ts
+type TPost = { id: string; title: string; status: 'draft' | 'published'; authorId: string }
+
+function readPosts() {
+  return readFn<TPost>()
+}
+
+async function publishedReactPosts() {
+  const read = readPosts()
+  return read('posts').where({ status: 'published' }).where({ title: '*React*' })()
+}
+```
+
+## Type Safety
+
+- Only valid fields are allowed in the where object
+- Union types and string operators are inferred by TS
+- Invalid combinations are compile-time errors

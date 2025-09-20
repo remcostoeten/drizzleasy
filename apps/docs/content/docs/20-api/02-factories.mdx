@@ -1,0 +1,69 @@
+---
+title: Factory Functions
+description: createFn, readFn, updateFn, destroyFn for reusable, typed CRUD.
+---
+
+```ts
+import { createFn, readFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
+```
+
+## createFn()
+
+```ts
+function createFn<T extends TEntity = TEntity>(): (
+  tableName: string
+) => (data: TCreateInput<T>) => Promise<TResult<T[]>>
+```
+
+```ts
+type TUser = { id: string; name: string; email: string }
+
+function makeCreate() {
+  return createFn<TUser>()
+}
+
+async function run() {
+  const create = makeCreate()
+  await create('users')({ name: 'Jane', email: 'jane@example.com' })
+}
+```
+
+## readFn()
+
+```ts
+function readFn<T extends TEntity = TEntity>(): (
+  tableName: string
+) => {
+  (): Promise<TResult<T[]>>
+  byId(id: string | number): Promise<TResult<T | null>>
+  where(condition: TWhereClause<T>): any
+}
+```
+
+```ts
+function makeRead() {
+  return readFn<TUser>()
+}
+
+async function run() {
+  const read = makeRead()
+  await read('users')()
+  await read('users').where({ status: 'active' })()
+}
+```
+
+## updateFn()
+
+```ts
+function updateFn<T extends TEntity = TEntity>(): (
+  tableName: string
+) => (id: string | number, data: TUpdateInput<T>) => Promise<TResult<T[]>>
+```
+
+## destroyFn()
+
+```ts
+function destroyFn<T extends TEntity = TEntity>(): (
+  tableName: string
+) => (id: string | number) => Promise<TResult<T[]>>
+```

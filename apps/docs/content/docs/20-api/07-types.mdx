@@ -1,0 +1,43 @@
+---
+title: Types
+description: Shared types used across Drizzleasy.
+---
+
+## TResult
+
+```ts
+type TResult<T> = {
+  data?: T
+  error?: Error
+}
+```
+
+## TEntity
+
+```ts
+type TEntity = {
+  id: string | number
+  createdAt?: string | Date
+  updatedAt?: string | Date
+}
+```
+
+## TCreateInput / TUpdateInput
+
+```ts
+type TCreateInput<T extends TEntity> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>
+
+type TUpdateInput<T extends TEntity> = Partial<Omit<T, 'id' | 'createdAt'>>
+```
+
+## WHERE types
+
+```ts
+type TWhereClause<T> = {
+  [K in keyof T]?:
+    | T[K]
+    | T[K][]
+    | (T[K] extends number | string | Date ? `>${string}` | `>=${string}` | `<${string}` | `<=${string}` | `!${string}` : never)
+    | (T[K] extends string ? `*${string}*` | `${string}*` | `*${string}` : never)
+}
+```

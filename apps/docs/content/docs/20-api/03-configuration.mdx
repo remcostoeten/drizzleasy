@@ -1,0 +1,28 @@
+---
+title: Configuration (configure)
+description: Provide your own Drizzle database instance and schema.
+---
+
+```ts
+import { configure } from '@remcostoeten/drizzleasy'
+import { drizzle } from 'drizzle-orm/neon-http'
+import * as schema from './schema'
+
+function setup() {
+  const db = drizzle(process.env.DATABASE_URL!)
+  configure(db, schema)
+}
+```
+
+## Types
+
+```ts
+type TDatabase = {
+  insert: (table: any) => any
+  select: () => any
+  update: (table: any) => any
+  delete: (table: any) => any
+}
+
+type TSchema = Record<string, any>
+```

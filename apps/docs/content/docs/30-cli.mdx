@@ -1,0 +1,25 @@
+---
+title: CLI
+description: Interactive utilities for schema generation and database inspection.
+---
+
+Run the CLI:
+
+```bash
+npx @remcostoeten/drizzleasy seed --help
+```
+
+Or via package script:
+
+```bash
+bun run cli -- --help
+```
+
+## Commands
+
+- Clear Database (manual guidance per provider)
+- Generate and Push schema (drizzle-kit)
+- Generate Random Schema templates (e-commerce, blog, CRM, social, tasks)
+- View tables (mock inspector)
+
+The CLI detects provider from `DATABASE_URL` and shows the correct guidance.

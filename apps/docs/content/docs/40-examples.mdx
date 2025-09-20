@@ -1,0 +1,109 @@
+---
+title: Examples
+description: Practical examples and patterns.
+---
+
+## Todo App
+
+Schema and CRUD with optimistic UI.
+
+```ts
+// server/actions/todos.ts
+'use server'
+import { revalidatePath } from 'next/cache'
+import { createFn, readFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
+
+type TTodo = {
+  id: string
+  title: string
+  description?: string
+  completed: boolean
+  priority: 'low' | 'medium' | 'high'
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+const create = createFn<TTodo>()
+const read = readFn<TTodo>()
+const update = updateFn<TTodo>()
+const destroy = destroyFn<TTodo>()
+
+export async function createTodo(data: { title: string; description?: string }) {
+  const result = await create('todos')({ id: crypto.randomUUID(), title: data.title, description: data.description, completed: false, priority: 'medium' })
+  if (!result.error) revalidatePath('/todos')
+  return result
+}
+
+export async function listTodos() {
+  return read('todos')()
+}
+
+export async function toggleTodo(id: string, completed: boolean) {
+  const result = await update('todos')(id, { completed })
+  if (!result.error) revalidatePath('/todos')
+  return result
+}
+
+export async function deleteTodo(id: string) {
+  const result = await destroy('todos')(id)
+  if (!result.error) revalidatePath('/todos')
+  return result
+}
+```
+
+```tsx
+// components/TodoList.tsx
+'use client'
+import { useOptimisticCrud } from '@remcostoeten/drizzleasy'
+import { createTodo, toggleTodo, deleteTodo } from '@/server/actions/todos'
+
+type TTodo = { id: string; title: string; completed: boolean }
+
+type TProps = { initialTodos: TTodo[] }
+
+export function TodoList(props: TProps) {
+  const { data, isPending, optimisticCreate } = useOptimisticCrud<TTodo>(props.initialTodos)
+
+  function handleCreate(formData: FormData) {
+    const title = String(formData.get('title') || '')
+    optimisticCreate({ title, completed: false }, function onCreate() {
+      return createTodo({ title })
+    })
+  }
+
+  return (
+    <div>
+      <form action={handleCreate}>
+        <input name="title" placeholder="Todo title" />
+        <button disabled={isPending}>{isPending ? 'Adding…' : 'Add'}</button>
+      </form>
+
+      <ul>
+        {data.map(function render(todo) {
+          return (
+            <li key={todo.id}>
+              <input type="checkbox" defaultChecked={todo.completed} onChange={function onChange(e) { void toggleTodo(todo.id, e.currentTarget.checked) }} />
+              <span>{todo.title}</span>
+              <button onClick={function onClick() { void deleteTodo(todo.id) }}>Delete</button>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+```
+
+## Batch operations
+
+```ts
+import { createFn } from '@remcostoeten/drizzleasy'
+
+type TUser = { id: string; email: string; name: string }
+
+async function createMany(users: Array<{ email: string; name: string }>) {
+  const create = createFn<TUser>()
+  const results = await Promise.all(users.map(function run(u) { return create('users')({ id: crypto.randomUUID(), ...u }) }))
+  return results
+}
+```

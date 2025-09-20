@@ -1,0 +1,41 @@
+---
+title: React Client (useOptimisticCrud, withTransition)
+description: Optimistic UI updates and safe transitions for server actions.
+---
+
+```ts
+'use client'
+import { useOptimisticCrud, withTransition, createFn } from '@remcostoeten/drizzleasy'
+
+type TTodo = { id: string; title: string; completed: boolean }
+
+function TodoList(props: { initialTodos: TTodo[] }) {
+  const { data, isPending, optimisticCreate } = useOptimisticCrud<TTodo>(props.initialTodos)
+  const create = createFn<TTodo>()
+
+  function handleSubmit(formData: FormData) {
+    const title = String(formData.get('title') || '')
+    optimisticCreate({ title, completed: false }, function onCreate() {
+      return create('todos')({ id: crypto.randomUUID(), title, completed: false })
+    })
+  }
+
+  return (
+    <form action={handleSubmit}>
+      <input name="title" placeholder="Add todo" />
+      <button disabled={isPending}>{isPending ? 'Adding...' : 'Add'}</button>
+    </form>
+  )
+}
+```
+
+Wrap server actions in a transition:
+
+```ts
+function saveUserAction() {
+  'use server'
+  // ... update in DB, return TResult
+}
+
+const save = withTransition(saveUserAction)
+```

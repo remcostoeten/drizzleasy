@@ -1,0 +1,55 @@
+---
+title: Best Practices
+description: Conventions for predictable, production-ready apps using Drizzleasy.
+---
+
+## Architecture
+
+- Use server functions → server actions → direct DB access
+- Do not create REST API routes for CRUD; call server actions directly
+- Never access the database on the client
+
+## Coding style (TypeScript + Next.js)
+
+- Use function declarations only: `function doSomething() {}`
+- Prefer pure functions and immutable data
+- Use named exports only (no default exports), except for Next.js pages/views
+- Use `type` exclusively, and prefix all types with `T` (e.g., `type TUser = { ... }`)
+- For React component prop types containing a single local type, name it `TProps`
+- Use reducers for complex multi-step UI state; keep reducers pure
+
+## Server actions
+
+```ts
+'use server'
+import { createFn, updateFn, readFn, destroyFn } from '@remcostoeten/drizzleasy'
+
+type TUser = { id: string; email: string; name: string; status: 'active' | 'inactive' }
+
+export async function createUser(data: { email: string; name: string }) {
+  const create = createFn<TUser>()
+  return create('users')({ id: crypto.randomUUID(), email: data.email, name: data.name, status: 'active' })
+}
+
+export async function getUsers() {
+  const read = readFn<TUser>()
+  return read('users')()
+}
+```
+
+## Error handling
+
+- Use the provided `DrizzleasyError` classes for consistent error surfaces
+- Wrap async work with `handleAsyncError` and log with `logError`
+
+## Performance
+
+- Wrap critical operations with `measurePerformance`
+- Index columns used in WHERE conditions
+- Reuse connections; `initializeConnection` caches connections
+
+## Environment
+
+- Validate env with `validateDatabaseEnvironment`
+- Provide `TURSO_AUTH_TOKEN` for libsql
+- Use environment switching config for development vs production
