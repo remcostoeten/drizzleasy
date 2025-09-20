@@ -12,13 +12,13 @@ description: Install package, set environment, and verify setup.
 
 ## Install
 
-```bash
+```bash filename=shell
 npm install @remcostoeten/drizzleasy drizzle-orm
 ```
 
 Add a database driver for your provider:
 
-```bash
+```bash filename=shell
 # Postgres (Neon, Vercel, Supabase, local postgres)
 npm install @neondatabase/serverless
 
@@ -31,8 +31,7 @@ npm install @libsql/client
 
 ## Environment variables
 
-```bash
-# .env
+```bash filename=.env
 NODE_ENV=development
 DATABASE_URL=... # postgres://..., postgresql://..., file:./db.sqlite, libsql://...
 TURSO_AUTH_TOKEN=... # only if using libsql/turso
@@ -42,7 +41,7 @@ TURSO_AUTH_TOKEN=... # only if using libsql/turso
 
 Create a small script to confirm schema loading and connection:
 
-```ts
+```ts filename=scripts/verify-install.ts
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 
 async function main() {

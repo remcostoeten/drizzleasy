@@ -5,7 +5,7 @@ description: Create, read, update, and destroy with a fluent, type-safe API.
 
 ## Overview
 
-```ts
+```ts filename=lib/crud.ts
 import { crud } from '@remcostoeten/drizzleasy'
 ```
 
@@ -14,7 +14,7 @@ import { crud } from '@remcostoeten/drizzleasy'
 
 ## create()
 
-```ts
+```ts filename=types/signatures.ts
 crud.create<T>(tableName: string)(data: TCreateInput<T>): Promise<TResult<T[]>>
 ```
 
@@ -30,7 +30,7 @@ async function createUser() {
 
 ## read()
 
-```ts
+```ts filename=types/signatures.ts
 crud.read<T>(tableName: string): {
   (): Promise<TResult<T[]>>
   where(condition: TWhereClause<T>): any
@@ -57,7 +57,7 @@ async function getUser(id: string) {
 
 ## update()
 
-```ts
+```ts filename=types/signatures.ts
 crud.update<T>(tableName: string)(id: string | number, data: TUpdateInput<T>): Promise<TResult<T[]>>
 ```
 
@@ -69,7 +69,7 @@ async function renameUser(id: string) {
 
 ## destroy()
 
-```ts
+```ts filename=types/signatures.ts
 crud.destroy<T>(tableName: string)(id: string | number): Promise<TResult<T[]>>
 ```
 

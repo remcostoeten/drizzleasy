@@ -3,13 +3,27 @@ title: Drizzleasy
 description: Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM.
 ---
 
-Drizzleasy makes CRUD operations and database management ridiculously easy. 100% type-safe with chainable syntax and clean DX.
+## Why Drizzleasy?
 
-```bash
+Shipping data features should feel boring and predictable. Drizzleasy gives you a tiny, typed layer over Drizzle ORM so you can:
+
+- Move fast with simple, readable CRUD helpers
+- Keep type safety end-to-end with minimal ceremony
+- Start with friendly WHERE syntax and “grow down” into Drizzle when you need power
+- Plug into production utilities (errors, perf metrics, env validation) when it matters
+
+## What is it?
+
+- A small set of typed CRUD helpers and factories (create/read/update/destroy)
+- A smart connection initializer that detects your database provider and loads your schema
+- Optional client helpers for optimistic UI in React
+- A thin layer that never locks you in — drop to Drizzle any time
+
+```bash filename=shell
 npm install @remcostoeten/drizzleasy
 ```
 
-```ts
+```ts filename=app/quickstart.ts
 // Quickstart
 import { initializeConnection, readFn, createFn } from '@remcostoeten/drizzleasy'
 
@@ -30,8 +44,12 @@ async function main() {
   <Card title="Installation" href="/docs/02-installation" />
   <Card title="Quickstart" href="/docs/03-quickstart" />
   <Card title="WHERE Clauses" href="/docs/10-where-clauses" />
+  <Card title="Smart Connection Architecture" href="/docs/12-connection-architecture" />
+  <Card title="Support & Scope" href="/docs/04-support-and-scope" />
   <Card title="API Reference" href="/docs/20-api/01-core" />
+  <Card title="Components" href="/docs/35-components" />
   <Card title="Examples" href="/docs/40-examples" />
   <Card title="Best Practices" href="/docs/50-best-practices" />
+  <Card title="FAQ" href="/docs/60-faq" />
   <Card title="CLI" href="/docs/30-cli" />
 </Cards>

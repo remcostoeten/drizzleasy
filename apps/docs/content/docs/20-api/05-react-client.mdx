@@ -3,7 +3,7 @@ title: React Client (useOptimisticCrud, withTransition)
 description: Optimistic UI updates and safe transitions for server actions.
 ---
 
-```ts
+```ts filename=components/TodoList.tsx
 'use client'
 import { useOptimisticCrud, withTransition, createFn } from '@remcostoeten/drizzleasy'
 
@@ -31,7 +31,7 @@ function TodoList(props: { initialTodos: TTodo[] }) {
 
 Wrap server actions in a transition:
 
-```ts
+```ts filename=components/SaveButton.tsx
 function saveUserAction() {
   'use server'
   // ... update in DB, return TResult
