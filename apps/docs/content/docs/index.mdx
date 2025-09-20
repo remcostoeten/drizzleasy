@@ -3,6 +3,8 @@ title: Drizzleasy
 description: Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM.
 ---
 
+import { Files, File } from 'fumadocs-ui/components/files'
+
 ## Why Drizzleasy?
 
 Shipping data features should feel boring and predictable. Drizzleasy gives you a tiny, typed layer over Drizzle ORM so you can:
@@ -23,13 +25,13 @@ Shipping data features should feel boring and predictable. Drizzleasy gives you 
 npm install @remcostoeten/drizzleasy
 ```
 
-```ts title=app/db-connection.ts
+<Files>
+  <File name="app/db-connection.ts" lang="ts">{`
 import { initializeConnection } from '@remcostoeten/drizzleasy'
 
 export const db = await initializeConnection(process.env.DATABASE_URL!)
-```
-
-```ts title=app/actions/users.ts
+  `}</File>
+  <File name="app/actions/users.ts" lang="ts">{`
 'use server'
 
 import { createFn, readFn } from '@remcostoeten/drizzleasy'
@@ -46,7 +48,8 @@ export async function createUser(data: { name: string; email: string }) {
 export async function listUsers() {
   return read('users')()
 }
-```
+  `}</File>
+</Files>
 
 <Cards>
   <Card title="Getting Started" href="/docs/01-getting-started" />
