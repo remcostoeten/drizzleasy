@@ -3,54 +3,44 @@ title: FAQ
 description: Answers to common questions.
 ---
 
-## Why Drizzleasy over using Drizzle directly?
+import { Accordions, Accordion } from 'fumadocs-ui/components/accordion'
 
-For common CRUD + simple filtering, Drizzleasy removes ceremony and gives you a consistent result shape and typed factories. For anything advanced (joins, transactions, pagination) you can and should drop down to Drizzle — no lock-in.
-
-## How are multiple `.where()` calls combined?
-
-They are combined with AND. OR queries are out of scope — use Drizzle for complex filters.
-
-## Does Drizzleasy support pagination, sorting, joins, and transactions?
-
-Not yet. Use Drizzle directly for these. Drizzleasy is a helper layer, not a query builder.
-
-## Does Drizzleasy work without Drizzle Kit?
-
+<Accordions type="single">
+  <Accordion title="Why Drizzleasy over using Drizzle directly?">
+    For common CRUD + simple filtering, Drizzleasy removes ceremony and gives you a consistent result shape and typed factories.
+    For anything advanced (joins, transactions, pagination) you can and should drop down to Drizzle — no lock-in.
+  </Accordion>
+  <Accordion title="How are multiple .where() calls combined?">
+    They are combined with AND. OR queries are out of scope — use Drizzle for complex filters.
+  </Accordion>
+  <Accordion title="Does Drizzleasy support pagination, sorting, joins, and transactions?">
+    Not yet. Use Drizzle directly for these. Drizzleasy is a helper layer, not a query builder.
+  </Accordion>
+  <Accordion title="Does Drizzleasy work without Drizzle Kit?">
 Yes. Drizzle Kit is recommended for schema management, but `configure(db, schema)` works with any provided Drizzle schema object.
-
-## Where should I run CRUD code?
-
-- In Next.js, run CRUD inside server actions or server-only modules
-- Do not access the database on the client
-
-## How are errors returned?
-
+  </Accordion>
+  <Accordion title="Where should I run CRUD code?">
+    In Next.js, run CRUD inside server actions or server-only modules. Do not access the database on the client.
+  </Accordion>
+  <Accordion title="How are errors returned?">
 Every operation returns `{ data?, error? }`. No exceptions are thrown from CRUD helpers. You can throw your own errors if desired.
-
-## What does `destroy()` return?
-
+  </Accordion>
+  <Accordion title="What does destroy() return?">
 It returns the deleted rows (via `returning()`), same as `create()` and `update()`.
-
-## How do I filter records?
-
+  </Accordion>
+  <Accordion title="How do I filter records?">
 Use natural WHERE syntax like `age: '>18'`, `name: '*john*'`, arrays for IN, and `!value` for not equal. See WHERE Clauses.
-
-## How do I connect to Turso?
-
+  </Accordion>
+  <Accordion title="How do I connect to Turso?">
 Use `initializeConnection(url, { authToken })` or set `TURSO_AUTH_TOKEN` in the environment.
-
-## What versions are supported?
-
-- Node.js 18+
-- Next.js 14 or 15
-- React 18 or 19
-- Drizzle ORM ^0.44.0
-
-## Does it work with ESM and CJS?
-
-Yes, both import and require are supported.
-
-## Can I mix Drizzleasy with raw Drizzle queries?
-
-Absolutely. Use Drizzleasy when it makes sense and drop to Drizzle for everything else.
+  </Accordion>
+  <Accordion title="What versions are supported?">
+    Node.js 18+, Next.js 14 or 15, React 18 or 19, Drizzle ORM ^0.44.0
+  </Accordion>
+  <Accordion title="Does it work with ESM and CJS?">
+    Yes, both import and require are supported.
+  </Accordion>
+  <Accordion title="Can I mix Drizzleasy with raw Drizzle queries?">
+    Absolutely. Use Drizzleasy when it makes sense and drop to Drizzle for everything else.
+  </Accordion>
+</Accordions>

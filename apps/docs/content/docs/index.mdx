@@ -23,19 +23,27 @@ Shipping data features should feel boring and predictable. Drizzleasy gives you 
 npm install @remcostoeten/drizzleasy
 ```
 
-```ts filename=app/quickstart.ts
-// Quickstart
-import { initializeConnection, readFn, createFn } from '@remcostoeten/drizzleasy'
+```ts filename=app/db-connection.ts
+import { initializeConnection } from '@remcostoeten/drizzleasy'
+
+export const db = await initializeConnection(process.env.DATABASE_URL!)
+```
+
+```ts filename=app/actions/users.ts
+'use server'
+import { createFn, readFn } from '@remcostoeten/drizzleasy'
 
 type TUser = { id: string; name: string; email: string; status: 'active' | 'inactive' }
 
-async function main() {
-  const db = await initializeConnection(process.env.DATABASE_URL!)
-  const read = readFn<TUser>()
-  const create = createFn<TUser>()
+const create = createFn<TUser>()
+const read = readFn<TUser>()
 
-  await create('users')({ name: 'Jane', email: 'jane@example.com', status: 'active' })
-  const { data: users } = await read('users')()
+export async function createUser(data: { name: string; email: string }) {
+  return create('users')({ ...data, status: 'active' })
+}
+
+export async function listUsers() {
+  return read('users')()
 }
 ```
 
