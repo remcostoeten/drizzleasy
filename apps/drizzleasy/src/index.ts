@@ -14,12 +14,21 @@
 export { crud } from './core'
 
 /**
- * Initializes a database connection.
- * @param {string} connectionString - The database URL/connection string.
- * @returns {Promise<DatabaseConnection>} A promise that resolves to a connected database instance.
+ * Database connection management with health monitoring, retry logic, and connection pooling.
  * @see ./database
  */
-export { initializeConnection } from './database'
+export { 
+    initializeConnection,
+    getConnection,
+    checkConnectionHealth,
+    closeConnection,
+    closeAllConnections,
+    connectionManager,
+    type ConnectionConfig,
+    type HealthStatus,
+    type ConnectionHealth,
+    type DatabaseConnection
+} from './database'
 
 /**
  * Configure global Drizzleasy settings.

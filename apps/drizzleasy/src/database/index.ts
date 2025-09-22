@@ -1,16 +1,12 @@
-import { findDrizzleConfig, loadSchemaFromConfig } from './config-loader'
-import { setupPostgres } from './providers/postgres'
-import { setupPostgresLocal } from './providers/postgres-local'
-import { setupSqlite } from './providers/sqlite'
-import { setupTurso } from './providers/turso'
+import { connectionManager, ConnectionConfig, HealthStatus } from './connection-manager'
 
 type ConnectionOptions = {
     authToken?: string
-}
-
-type ConnectionConfig = {
-    url: string
-    authToken?: string
+    maxRetries?: number
+    retryDelay?: number
+    poolSize?: number
+    timeout?: number
+    healthCheckInterval?: number
 }
 
 type MultiConnectionConfig =
@@ -23,10 +19,8 @@ type MultiConnectionConfig =
           test?: string | ConnectionConfig
       }
 
-const connectionCache = new Map<string, any>()
-
 /**
- * Initialize database connection with auto-detection and schema loading.
+ * Initialize database connection with health monitoring, retry logic, and connection pooling.
  *
  * @example Single database
  * ```typescript
@@ -37,6 +31,15 @@ const connectionCache = new Map<string, any>()
  * ```typescript
  * const db = await initializeConnection(process.env.DATABASE_URL!, {
  *   authToken: process.env.TURSO_AUTH_TOKEN
+ * })
+ * ```
+ *
+ * @example Connection with retry and health monitoring
+ * ```typescript
+ * const db = await initializeConnection(process.env.DATABASE_URL!, {
+ *   maxRetries: 3,
+ *   retryDelay: 1000,
+ *   healthCheckInterval: 30000
  * })
  * ```
  *
@@ -54,7 +57,19 @@ export async function initializeConnection(
 ): Promise<any> {
     // Single URL
     if (typeof input === 'string') {
-        return createSingleConnection(input, options)
+        const config: ConnectionConfig = {
+            url: input,
+            authToken: options?.authToken,
+            options: {
+                maxRetries: options?.maxRetries,
+                retryDelay: options?.retryDelay,
+                poolSize: options?.poolSize,
+                timeout: options?.timeout,
+                healthCheckInterval: options?.healthCheckInterval
+            }
+        }
+        const connection = await connectionManager.initialize(config)
+        return connection.db
     }
 
     // Multi-database config
@@ -65,9 +80,33 @@ export async function initializeConnection(
             const config = input[env as keyof typeof input]
 
             if (typeof config === 'string') {
-                return createSingleConnection(config, options, 'env')
+                const connectionConfig: ConnectionConfig = {
+                    url: config,
+                    authToken: options?.authToken,
+                    options: {
+                        maxRetries: options?.maxRetries,
+                        retryDelay: options?.retryDelay,
+                        poolSize: options?.poolSize,
+                        timeout: options?.timeout,
+                        healthCheckInterval: options?.healthCheckInterval
+                    }
+                }
+                const connection = await connectionManager.initialize(connectionConfig, 'env')
+                return connection.db
             } else if (config && typeof config === 'object') {
-                return createSingleConnection(config.url, { authToken: config.authToken }, 'env')
+                const connectionConfig: ConnectionConfig = {
+                    url: config.url,
+                    authToken: config.authToken || options?.authToken,
+                    options: {
+                        maxRetries: options?.maxRetries,
+                        retryDelay: options?.retryDelay,
+                        poolSize: options?.poolSize,
+                        timeout: options?.timeout,
+                        healthCheckInterval: options?.healthCheckInterval
+                    }
+                }
+                const connection = await connectionManager.initialize(connectionConfig, 'env')
+                return connection.db
             }
 
             throw new Error(`No configuration found for environment: ${env}`)
@@ -77,11 +116,33 @@ export async function initializeConnection(
         const connections: Record<string, any> = {}
         for (const [name, config] of Object.entries(input)) {
             if (typeof config === 'string') {
-                connections[name] = await createSingleConnection(config)
+                const connectionConfig: ConnectionConfig = {
+                    url: config,
+                    authToken: options?.authToken,
+                    options: {
+                        maxRetries: options?.maxRetries,
+                        retryDelay: options?.retryDelay,
+                        poolSize: options?.poolSize,
+                        timeout: options?.timeout,
+                        healthCheckInterval: options?.healthCheckInterval
+                    }
+                }
+                const connection = await connectionManager.initialize(connectionConfig, name)
+                connections[name] = connection.db
             } else if (config && typeof config === 'object') {
-                connections[name] = await createSingleConnection(config.url, {
-                    authToken: config.authToken
-                })
+                const connectionConfig: ConnectionConfig = {
+                    url: config.url,
+                    authToken: config.authToken || options?.authToken,
+                    options: {
+                        maxRetries: options?.maxRetries,
+                        retryDelay: options?.retryDelay,
+                        poolSize: options?.poolSize,
+                        timeout: options?.timeout,
+                        healthCheckInterval: options?.healthCheckInterval
+                    }
+                }
+                const connection = await connectionManager.initialize(connectionConfig, name)
+                connections[name] = connection.db
             }
         }
         return connections
@@ -90,41 +151,35 @@ export async function initializeConnection(
     throw new Error('Invalid connection configuration')
 }
 
-async function createSingleConnection(
-    url: string,
-    options?: ConnectionOptions,
-    cacheNamespace: string = 'default'
-) {
-    const cacheKey = `${cacheNamespace}:${url}:${options?.authToken || ''}`
-
-    if (connectionCache.has(cacheKey)) {
-        return connectionCache.get(cacheKey)
-    }
-
-    // Load schema from drizzle.config.ts
-    const schema = await loadSchemaFromConfig()
-
-    let connection: any
-
-    // Detect provider from URL
-    if (url.startsWith('libsql://')) {
-        if (!options?.authToken) {
-            throw new Error('Turso requires authToken option')
-        }
-        connection = await setupTurso(url, options.authToken, schema)
-    } else if (url.startsWith('postgresql://') || url.startsWith('postgres://')) {
-        // Detect local vs cloud PostgreSQL
-        if (url.includes('localhost') || url.includes('127.0.0.1') || url.includes(':5432')) {
-            connection = await setupPostgresLocal(url, schema)
-        } else {
-            connection = await setupPostgres(url, schema)
-        }
-    } else if (url.startsWith('file:') || (!url.includes('://') && url.endsWith('.db'))) {
-        connection = await setupSqlite(url, schema)
-    } else {
-        throw new Error(`Unsupported database URL format: ${url}`)
-    }
-
-    connectionCache.set(cacheKey, connection)
-    return connection
+/**
+ * Get an existing database connection by name
+ */
+export function getConnection(name: string = 'default'): any {
+    const connection = connectionManager.getConnection(name)
+    return connection.db
 }
+
+/**
+ * Check health status of all database connections
+ */
+export async function checkConnectionHealth(): Promise<HealthStatus> {
+    return await connectionManager.healthCheck()
+}
+
+/**
+ * Close a specific database connection
+ */
+export async function closeConnection(name: string = 'default'): Promise<void> {
+    await connectionManager.closeConnection(name)
+}
+
+/**
+ * Close all database connections
+ */
+export async function closeAllConnections(): Promise<void> {
+    await connectionManager.close()
+}
+
+// Export connection manager types and utilities
+export { ConnectionConfig, HealthStatus, ConnectionHealth, DatabaseConnection } from './connection-manager'
+export { connectionManager } from './connection-manager'

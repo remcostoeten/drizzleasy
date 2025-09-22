@@ -11,5 +11,6 @@ export {
     type TDrizzleasyError
 } from './error-handler'
 export { DrizzleasyError } from './error-factory'
+export { EnhancedErrorHandler } from './enhanced-error-handler'
 export * from './performance'
 export * from './environment'

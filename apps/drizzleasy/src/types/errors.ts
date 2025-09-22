@@ -1,26 +1,46 @@
 /**
  * Error categories for programmatic handling
  */
-export type TErrorType = 
+export type TErrorCategory = 
+    | 'CONNECTION'
     | 'VALIDATION'
     | 'PERMISSION'
-    | 'NOT_FOUND'
-    | 'DUPLICATE'
-    | 'DATABASE'
-    | 'NETWORK'
+    | 'CONSTRAINT'
     | 'TIMEOUT'
     | 'UNKNOWN'
+
+/**
+ * Error severity levels
+ */
+export type TErrorSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+
+/**
+ * Environment modes for error handling
+ */
+export type TEnvironmentMode = 'development' | 'production'
 
 /**
  * Enhanced error with categorization and metadata
  */
 export type TEnhancedError = {
     /** Error category for programmatic handling */
-    type: TErrorType
+    category: TErrorCategory
+    /** Error severity level */
+    severity: TErrorSeverity
     /** Human-readable error message */
     message: string
     /** Machine-readable error code */
     code: string
+    /** User-friendly message for display */
+    userMessage: string
+    /** Developer-focused message with technical details */
+    developerMessage: string
+    /** Whether this error provides actionable guidance */
+    actionable: boolean
+    /** Whether this operation can be retried */
+    retryable: boolean
+    /** When this error occurred */
+    timestamp: Date
     /** Additional error details */
     details?: {
         /** Field-specific validation errors */
@@ -29,17 +49,15 @@ export type TEnhancedError = {
         query?: string
         /** Table involved in the operation */
         table?: string
-        /** Original database error */
-        originalError?: Error
-        /** Suggested user-facing message */
-        userMessage?: string
-        /** Stack trace for debugging */
+        /** Original database error (sanitized in production) */
+        originalError?: Error | string
+        /** Stack trace for debugging (development only) */
         stack?: string
+        /** Suggested resolution steps */
+        resolutionSteps?: string[]
+        /** Related documentation links */
+        documentationLinks?: string[]
     }
-    /** Whether this operation can be retried */
-    retryable: boolean
-    /** When this error occurred */
-    timestamp: Date
 }
 
 /**

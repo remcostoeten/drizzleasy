@@ -69,7 +69,7 @@ export async function execute<T>(
         
         // Convert to enhanced error
         let enhancedError
-        if (error && typeof error === 'object' && 'type' in error && 'message' in error && 'code' in error) {
+        if (error && typeof error === 'object' && 'category' in error && 'message' in error && 'code' in error) {
             // Already an enhanced error
             enhancedError = error as TEnhancedError
         } else {

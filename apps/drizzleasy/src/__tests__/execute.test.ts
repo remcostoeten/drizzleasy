@@ -26,8 +26,12 @@ describe('Execute', () => {
         expect(result).toEqual({
             error: expect.objectContaining({
                 message: 'Something went wrong',
-                type: expect.any(String),
+                category: expect.any(String),
+                severity: expect.any(String),
                 code: expect.any(String),
+                userMessage: expect.any(String),
+                developerMessage: expect.any(String),
+                actionable: expect.any(Boolean),
                 retryable: expect.any(Boolean),
                 timestamp: expect.any(Date)
             }),
@@ -47,9 +51,13 @@ describe('Execute', () => {
         expect(result).toEqual({
             error: expect.objectContaining({
                 message: 'String error',
-                type: 'DATABASE',
-                code: 'DATABASE_ERROR',
-                retryable: true,
+                category: expect.any(String),
+                severity: expect.any(String),
+                code: expect.any(String),
+                userMessage: expect.any(String),
+                developerMessage: expect.any(String),
+                actionable: expect.any(Boolean),
+                retryable: expect.any(Boolean),
                 timestamp: expect.any(Date),
                 details: expect.objectContaining({
                     originalError: 'String error'
