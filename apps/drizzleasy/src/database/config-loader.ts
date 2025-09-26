@@ -45,8 +45,8 @@ export async function loadSchemaFromConfig(): Promise<any> {
     try {
         const configPath = findDrizzleConfig()
 
-        // Dynamic import the config
-        const config = await import(configPath)
+        // Dynamic import the config with proper error handling
+        const config = await safeImport(configPath)
         const drizzleConfig = config.default
 
         if (!drizzleConfig.schema) {
@@ -57,13 +57,33 @@ export async function loadSchemaFromConfig(): Promise<any> {
         const schemaPattern = drizzleConfig.schema
         const schemaFiles = await resolveSchemaFiles(schemaPattern)
 
-        // Import all schema files and merge
+        if (schemaFiles.length === 0) {
+            throw new Error(`No schema files found matching pattern: ${schemaPattern}`)
+        }
+
+        // Import all schema files with improved error handling
         const schemas = await Promise.all(
-            schemaFiles.map(file => import(resolve(process.cwd(), file)))
+            schemaFiles.map(async (file) => {
+                const absolutePath = resolve(process.cwd(), file)
+                if (isNextJSEnvironment()) {
+                    // Use Next.js-compatible import strategy
+                    return await safeImportForNextJS(absolutePath)
+                } else {
+                    // Standard dynamic import
+                    return await safeImport(absolutePath)
+                }
+            })
         )
 
+        // Filter out null results from failed imports
+        const validSchemas = schemas.filter(schema => schema !== null)
+        
+        if (validSchemas.length === 0) {
+            throw new Error('Failed to load any schema files')
+        }
+
         // Merge all exports into single schema object
-        return mergeSchemas(schemas)
+        return mergeSchemas(validSchemas)
     } catch (error) {
         throw new Error(`Failed to load schema: ${error}`)
     }
@@ -113,4 +133,104 @@ function mergeSchemas(schemas: any[]): any {
     }
 
     return merged
+}
+
+/**
+ * Safely import a module with better error handling.
+ * Handles both CommonJS and ES modules.
+ *
+ * @param modulePath - Absolute path to the module
+ * @returns Promise resolving to the imported module or null on error
+ * @internal
+ */
+async function safeImport(modulePath: string): Promise<any> {
+    try {
+        // Normalize path for cross-platform compatibility
+        const normalizedPath = modulePath.replace(/\\/g, '/')
+        
+        // Try dynamic import first (ES modules)
+        const module = await import(/* @vite-ignore */ normalizedPath)
+        return module
+    } catch (error) {
+        // Enhanced error logging for debugging
+        console.error(`Failed to import module: ${modulePath}`, error)
+        
+        // For Next.js debugging: check if the path construction is the issue
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Module path details:', {
+                original: modulePath,
+                cwd: process.cwd(),
+                exists: existsSync(modulePath)
+            })
+        }
+        
+        return null
+    }
+}
+
+/**
+ * Next.js-specific safe import that handles Turbopack module resolution.
+ * Uses alternative import strategies that work better with Next.js bundling.
+ *
+ * @param modulePath - Absolute path to the module
+ * @returns Promise resolving to the imported module or null on error
+ * @internal
+ */
+async function safeImportForNextJS(modulePath: string): Promise<any> {
+    try {
+        // For Next.js, try to use a relative path from project root
+        const relativePath = modulePath.replace(process.cwd(), '.')
+        
+        // First attempt: relative path import
+        try {
+            const module = await import(/* @vite-ignore */ relativePath)
+            return module
+        } catch (relativeError) {
+            // Second attempt: absolute path with file:// protocol
+            try {
+                const fileUrl = `file://${modulePath}`
+                const module = await import(/* @vite-ignore */ fileUrl)
+                return module
+            } catch (fileUrlError) {
+                // Third attempt: standard absolute path
+                const module = await import(/* @vite-ignore */ modulePath)
+                return module
+            }
+        }
+    } catch (error) {
+        console.error(`Failed to import module in Next.js environment: ${modulePath}`, error)
+        
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Next.js import debugging info:', {
+                absolutePath: modulePath,
+                relativePath: modulePath.replace(process.cwd(), '.'),
+                cwd: process.cwd(),
+                turbopack: !!process.env.TURBOPACK,
+                exists: existsSync(modulePath)
+            })
+        }
+        
+        return null
+    }
+}
+
+/**
+ * Detect if we're running in a Next.js environment.
+ * Checks for Next.js-specific environment variables and globals.
+ *
+ * @returns true if running in Next.js environment
+ * @internal
+ */
+function isNextJSEnvironment(): boolean {
+    return !!(
+        // Check for Next.js environment variables
+        process.env.NEXT_RUNTIME ||
+        process.env.TURBOPACK ||
+        process.env.__NEXT_PRIVATE_ORIGIN ||
+        // Check for Next.js in process.env
+        process.env.npm_config_user_config?.includes('next') ||
+        // Check for Next.js in the process title or argv
+        process.title?.includes('next') ||
+        process.argv.some(arg => arg.includes('next'))
+    )
 }
