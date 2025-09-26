@@ -1,3 +1,41 @@
+## [0.13.0] - 2025-01-26
+
+### Added
+
+- 🔥 **Separated client and server bundles** to fix Next.js bundling issues
+- 📦 **New export paths**: 
+  - `@remcostoeten/drizzleasy/client` for client-side hooks only
+  - `@remcostoeten/drizzleasy/server` for server-side functionality only
+  - `@remcostoeten/drizzleasy` (default) for client-side hooks and types
+
+### Fixed
+
+- 🐛 **Module resolution errors** in Next.js when importing client hooks
+- 🔧 **Server-side dependencies** (fs, child_process, etc.) no longer bundled in client code
+- 🚀 **Significantly reduced client bundle size** (1.3KB vs 60KB+)
+
+### Migration Guide
+
+**For client components using `useOptimisticCrud`:**
+```tsx
+// ✅ New way (recommended)
+import { useOptimisticCrud } from '@remcostoeten/drizzleasy/client'
+
+// ✅ Still works (default export includes client hooks)
+import { useOptimisticCrud } from '@remcostoeten/drizzleasy'
+```
+
+**For server-side usage:**
+```tsx
+// ✅ New way (recommended)
+import { crud, initializeConnection } from '@remcostoeten/drizzleasy/server'
+
+// ❌ Old way (will include unnecessary client dependencies)
+import { crud, initializeConnection } from '@remcostoeten/drizzleasy'
+```
+
+---
+
 ## [0.12.0] - 2025-01-20
 
 ### Added
