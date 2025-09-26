@@ -9,12 +9,13 @@
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
+    "framer-motion": "^12.23.22",
+    "fumadocs-core": "15.7.13",
+    "fumadocs-mdx": "11.10.1",
+    "fumadocs-ui": "15.7.13",
     "next": "15.5.3",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "fumadocs-ui": "15.7.13",
-    "fumadocs-core": "15.7.13",
-    "fumadocs-mdx": "11.10.1"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@types/node": "24.3.3",

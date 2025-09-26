@@ -26,7 +26,7 @@ You can let Drizzleasy auto-detect your setup or configure it manually.
 ### Option A — Auto-detect (recommended)
 
 ```ts filename=app/setup/db.ts
-import { initializeConnection } from '@remcostoeten/drizzleasy'
+import { initializeConnection } from '@remcostoeten/drizzleasy/server'
 
 async function bootstrap() {
   const db = await initializeConnection(process.env.DATABASE_URL!)
@@ -39,7 +39,7 @@ async function bootstrap() {
 Turso (libsql) requires an auth token:
 
 ```ts filename=app/setup/db.turso.ts
-import { initializeConnection } from '@remcostoeten/drizzleasy'
+import { initializeConnection } from '@remcostoeten/drizzleasy/server'
 
 async function bootstrapTurso() {
   const db = await initializeConnection(process.env.DATABASE_URL!, {
@@ -51,7 +51,7 @@ async function bootstrapTurso() {
 Environment switching:
 
 ```ts filename=app/setup/db.env.ts
-import { initializeConnection } from '@remcostoeten/drizzleasy'
+import { initializeConnection } from '@remcostoeten/drizzleasy/server'
 
 async function bootstrapEnv() {
   const db = await initializeConnection({
@@ -64,7 +64,7 @@ async function bootstrapEnv() {
 ### Option B — Manual configure
 
 ```ts filename=app/setup/manual-config.ts
-import { configure } from '@remcostoeten/drizzleasy'
+import { configure } from '@remcostoeten/drizzleasy/server'
 import { drizzle } from 'drizzle-orm/neon-http'
 import * as schema from './schema'
 
@@ -78,7 +78,7 @@ function setup() {
 
 ```ts filename=app/actions/signups.ts
 'use server'
-import { createFn, readFn } from '@remcostoeten/drizzleasy'
+import { createFn, readFn } from '@remcostoeten/drizzleasy/server'
 
 type TSignup = { id: string; email: string; newsletter: 'yes' | 'no' }
 
