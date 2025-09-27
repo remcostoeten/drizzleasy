@@ -1,6 +1,6 @@
 {
     "name": "@remcostoeten/drizzleasy",
-    "version": "0.13.0",
+    "version": "0.13.1",
     "description": "Ultra-simple, type-safe CRUD operations for Next.js with Drizzle ORM",
     "type": "module",
     "main": "dist/index.js",

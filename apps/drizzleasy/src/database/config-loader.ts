@@ -149,7 +149,11 @@ async function safeImport(modulePath: string): Promise<any> {
         const normalizedPath = modulePath.replace(/\\/g, '/')
         
         // Try dynamic import first (ES modules)
-        const module = await import(/* @vite-ignore */ normalizedPath)
+        const module = await import(
+            /* webpackIgnore: true */
+            /* @vite-ignore */
+            normalizedPath
+        )
         return module
     } catch (error) {
         // Enhanced error logging for debugging
@@ -183,17 +187,29 @@ async function safeImportForNextJS(modulePath: string): Promise<any> {
         
         // First attempt: relative path import
         try {
-            const module = await import(/* @vite-ignore */ relativePath)
+            const module = await import(
+                /* webpackIgnore: true */
+                /* @vite-ignore */
+                relativePath
+            )
             return module
         } catch (relativeError) {
             // Second attempt: absolute path with file:// protocol
             try {
                 const fileUrl = `file://${modulePath}`
-                const module = await import(/* @vite-ignore */ fileUrl)
+                const module = await import(
+                    /* webpackIgnore: true */
+                    /* @vite-ignore */
+                    fileUrl
+                )
                 return module
             } catch (fileUrlError) {
                 // Third attempt: standard absolute path
-                const module = await import(/* @vite-ignore */ modulePath)
+                const module = await import(
+                    /* webpackIgnore: true */
+                    /* @vite-ignore */
+                    modulePath
+                )
                 return module
             }
         }
