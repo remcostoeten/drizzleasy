@@ -1,3 +1,36 @@
+## [0.14.0] - 2025-01-11
+
+### Added
+
+- 🔍 **Enhanced schema auto-loading** with parent directory search (up to 5 levels)
+- ✅ **Schema validation** to detect invalid/empty schemas with helpful error messages
+- 🛠️ **Manual schema override** option for Next.js 15/Turbopack compatibility
+- 📝 **Improved error messages** with actionable troubleshooting steps
+- 📚 **Updated documentation** with Bun-exclusive commands and new features
+
+### Changed
+
+- 🔧 `findDrizzleConfig()` now searches parent directories for monorepo support
+- 📖 All documentation updated to use `bun add` instead of npm/yarn
+- 🎯 Import paths clarified throughout docs (`/server` vs `/client`)
+- ✨ Added 3 new FAQs about schema loading errors
+
+### Fixed
+
+- 🐛 Schema loading in monorepos and nested project structures
+- 🔧 Better error context for Next.js dynamic import failures
+- 📖 Fixed broken documentation links
+- ✅ Consistent import path usage across all examples
+
+### Technical Improvements
+
+- Schema validation checks for valid Drizzle table definitions using `Symbol.for('drizzle:table')`
+- Enhanced `safeImport()` and `safeImportForNextJS()` with detailed error reporting
+- `ConnectionOptions` now accepts optional `schema` parameter
+- Parent directory search prevents "config not found" errors in complex projects
+
+---
+
 ## [0.13.0] - 2025-01-26
 
 ### Added
