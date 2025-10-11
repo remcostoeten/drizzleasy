@@ -6,6 +6,7 @@ import { setupTurso } from './providers/turso'
 
 type ConnectionOptions = {
     authToken?: string
+    schema?: any
 }
 
 type ConnectionConfig = {
@@ -46,6 +47,12 @@ const connectionCache = new Map<string, any>()
  *   development: 'file:./dev.db',
  *   production: process.env.DATABASE_URL!
  * })
+ * ```
+ *
+ * @example Manual schema override
+ * ```typescript
+ * import * as schema from './db/schema'
+ * const db = await initializeConnection(process.env.DATABASE_URL!, { schema })
  * ```
  */
 export async function initializeConnection(
@@ -101,8 +108,7 @@ async function createSingleConnection(
         return connectionCache.get(cacheKey)
     }
 
-    // Load schema from drizzle.config.ts
-    const schema = await loadSchemaFromConfig()
+    const schema = options?.schema || await loadSchemaFromConfig()
 
     let connection: any
 
