@@ -18,7 +18,7 @@ type TUser = {
 ## Create typed factories
 
 ```ts filename=lib/crud.ts
-import { createFn, readFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy'
+import { createFn, readFn, updateFn, destroyFn } from '@remcostoeten/drizzleasy/server'
 
 function createCrud() {
   const create = createFn<TUser>()

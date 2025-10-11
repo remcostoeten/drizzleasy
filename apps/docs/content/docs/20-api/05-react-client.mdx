@@ -6,7 +6,8 @@ description: Optimistic UI updates and safe transitions for server actions.
 ```ts title=components/TodoList.tsx
 'use client'
 
-import { useOptimisticCrud, withTransition, createFn } from '@remcostoeten/drizzleasy'
+import { useOptimisticCrud, withTransition } from '@remcostoeten/drizzleasy/client'
+import { createFn } from '@remcostoeten/drizzleasy/server'
 
 type TTodo = { id: string; title: string; completed: boolean }
 
