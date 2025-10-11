@@ -13,20 +13,20 @@ description: Install package, set environment, and verify setup.
 ## Install
 
 ```bash filename=shell
-npm install @remcostoeten/drizzleasy drizzle-orm
+bun add @remcostoeten/drizzleasy drizzle-orm
 ```
 
 Add a database driver for your provider:
 
 ```bash filename=shell
 # Postgres (Neon, Vercel, Supabase, local postgres)
-npm install @neondatabase/serverless
+bun add @neondatabase/serverless
 
 # SQLite
-npm install better-sqlite3
+bun add better-sqlite3
 
 # Turso / LibSQL
-npm install @libsql/client
+bun add @libsql/client
 ```
 
 ## Environment variables

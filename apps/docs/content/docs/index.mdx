@@ -22,19 +22,19 @@ Shipping data features should feel boring and predictable. Drizzleasy gives you 
 - A thin layer that never locks you in — drop to Drizzle any time
 
 ```bash title=shell
-npm install @remcostoeten/drizzleasy
+bun add @remcostoeten/drizzleasy drizzle-orm
 ```
 
 <Files>
   <File name="app/db-connection.ts" lang="ts">{`
-import { initializeConnection } from '@remcostoeten/drizzleasy'
+import { initializeConnection } from '@remcostoeten/drizzleasy/server'
 
 export const db = await initializeConnection(process.env.DATABASE_URL!)
   `}</File>
   <File name="app/actions/users.ts" lang="ts">{`
 'use server'
 
-import { createFn, readFn } from '@remcostoeten/drizzleasy'
+import { createFn, readFn } from '@remcostoeten/drizzleasy/server'
 
 type TUser = { id: string; name: string; email: string; status: 'active' | 'inactive' }
 
@@ -59,7 +59,7 @@ export async function listUsers() {
   <Card title="Smart Connection Architecture" href="/docs/12-connection-architecture" />
   <Card title="Support & Scope" href="/docs/04-support-and-scope" />
   <Card title="API Reference" href="/docs/20-api/01-core" />
-  <Card title="Components" href="/docs/35-components" />
+  <Card title="CLI" href="/docs/30-cli" />
   <Card title="Examples" href="/docs/40-examples" />
   <Card title="Best Practices" href="/docs/50-best-practices" />
   <Card title="FAQ" href="/docs/60-faq" />

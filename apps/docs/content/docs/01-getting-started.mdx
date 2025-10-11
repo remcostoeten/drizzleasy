@@ -8,16 +8,14 @@ Drizzleasy provides ultra-simple, type-safe CRUD operations on top of Drizzle OR
 ## Install
 
 ```bash filename=shell
-npm install @remcostoeten/drizzleasy
-# or
-pnpm add @remcostoeten/drizzleasy
-# or
-yarn add @remcostoeten/drizzleasy
-```
+bun add @remcostoeten/drizzleasy drizzle-orm
 
-Peer deps (choose the ones you use):
-- drizzle-orm
-- A database driver: @neondatabase/serverless, postgres, @libsql/client, better-sqlite3, etc.
+# Add database driver (choose one)
+bun add @neondatabase/serverless  # Neon PostgreSQL
+bun add @libsql/client            # Turso
+bun add better-sqlite3            # SQLite
+bun add pg                         # Local PostgreSQL
+```
 
 ## Configure
 
@@ -57,6 +55,19 @@ async function bootstrapEnv() {
   const db = await initializeConnection({
     development: 'file:./dev.db',
     production: process.env.DATABASE_URL!
+  })
+}
+```
+
+Manual schema override (for Next.js 15/Turbopack or monorepos):
+
+```ts filename=app/setup/db.manual-schema.ts
+import { initializeConnection } from '@remcostoeten/drizzleasy/server'
+import * as schema from './schema'
+
+async function bootstrapManual() {
+  const db = await initializeConnection(process.env.DATABASE_URL!, {
+    schema
   })
 }
 ```

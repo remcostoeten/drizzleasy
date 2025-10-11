@@ -29,7 +29,12 @@ const { data: premiumUsers } = await read('users').where({ isPremium: true })()
 return { newUser, premiumUsers }
 ```
 
-For full docs and examples visit [drizzleasy.vercel.app](https://drizzleasy.vercel.app)
+## 📚 Documentation
+
+- **[Full Documentation](https://drizzleasy.vercel.app)** - Complete guides and API reference
+- **[Quickstart](https://drizzleasy.vercel.app/docs/quickstart)** - Get started in 5 minutes
+- **[API Reference](https://drizzleasy.vercel.app/docs/api/core)** - Detailed function documentation
+- **[FAQ](https://drizzleasy.vercel.app/docs/faq)** - Common questions and answers
 
 ![LSP Demo](premium-vscode-demo.gif)
 
@@ -49,8 +54,16 @@ For full docs and examples visit [drizzleasy.vercel.app](https://drizzleasy.verc
 ## Installation
 
 ```bash
-npm install @remcostoeten/drizzleasy
+bun add @remcostoeten/drizzleasy drizzle-orm
+
+# Add database driver (choose one)
+bun add @neondatabase/serverless  # Neon PostgreSQL
+bun add @libsql/client            # Turso
+bun add better-sqlite3            # SQLite
+bun add pg                         # Local PostgreSQL
 ```
+
+💡 **Not sure which driver?** See the [installation guide](https://drizzleasy.vercel.app/docs/installation)
 
 ## Quick Start
 

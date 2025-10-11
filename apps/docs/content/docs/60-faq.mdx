@@ -43,4 +43,13 @@ Use `initializeConnection(url, { authToken })` or set `TURSO_AUTH_TOKEN` in the 
   <Accordion title="Can I mix Drizzleasy with raw Drizzle queries?">
     Absolutely. Use Drizzleasy when it makes sense and drop to Drizzle for everything else.
   </Accordion>
+  <Accordion title="What if drizzle.config.ts is not found?">
+    Drizzleasy searches your project root and up to 5 parent directories. Create `drizzle.config.ts` with a `schema` field, or use manual schema override: `initializeConnection(url, { schema })`
+  </Accordion>
+  <Accordion title="How do I fix 'Empty schema' or 'Invalid schema' errors?">
+    Make sure your schema file uses named exports: `export const users = pgTable(...)`. Default exports or plain objects won't work.
+  </Accordion>
+  <Accordion title="Schema loading fails in Next.js 15 / Turbopack?">
+    Use manual schema override to bypass auto-loading: `import * as schema from './schema'` then `initializeConnection(url, { schema })`
+  </Accordion>
 </Accordions>

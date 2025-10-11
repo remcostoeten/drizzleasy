@@ -40,7 +40,7 @@
     },
     "apps/drizzleasy": {
       "name": "@remcostoeten/drizzleasy",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "bin": {
         "drizzleasy": "./bin/drizzleasy",
       },
