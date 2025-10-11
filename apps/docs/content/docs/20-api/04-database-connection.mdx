@@ -49,6 +49,26 @@ async function connectMultiple() {
 }
 ```
 
+## Manual schema override
+
+Bypass auto-loading for Next.js/Turbopack compatibility:
+
+```ts filename=app/setup/connect.manual.ts
+import * as schema from '@/db/schema'
+
+async function connectWithSchema() {
+  const db = await initializeConnection(
+    process.env.DATABASE_URL!,
+    { schema }
+  )
+}
+```
+
+Useful when:
+- Next.js 15 with Turbopack has module resolution issues
+- You want to avoid automatic `drizzle.config.ts` loading
+- Working in monorepos with complex paths
+
 ## Provider detection
 
 - Postgres: `postgresql://`, `postgres://`
