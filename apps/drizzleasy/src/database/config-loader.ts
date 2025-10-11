@@ -17,15 +17,30 @@ import { glob } from 'glob'
  */
 export function findDrizzleConfig(): string {
     const possibleConfigs = ['drizzle.config.ts', 'drizzle.config.js', 'drizzle.config.mjs']
-
-    for (const config of possibleConfigs) {
-        const configPath = resolve(process.cwd(), config)
-        if (existsSync(configPath)) {
-            return configPath
+    const searchedPaths: string[] = []
+    let currentDir = process.cwd()
+    
+    for (let i = 0; i < 6; i++) {
+        for (const config of possibleConfigs) {
+            const configPath = resolve(currentDir, config)
+            searchedPaths.push(configPath)
+            if (existsSync(configPath)) {
+                return configPath
+            }
         }
+        
+        const parentDir = resolve(currentDir, '..')
+        if (parentDir === currentDir) break
+        currentDir = parentDir
     }
 
-    throw new Error('drizzle.config.ts not found in project root')
+    throw new Error(
+        'drizzle.config.ts not found in project root or parent directories.\n\n' +
+        'Please ensure you have a drizzle.config.ts file with a schema field:\n' +
+        '  export default { schema: "./src/db/schema.ts" }\n\n' +
+        'Searched directories:\n' +
+        searchedPaths.map(p => `  - ${p}`).join('\n')
+    )
 }
 
 /**
@@ -82,8 +97,9 @@ export async function loadSchemaFromConfig(): Promise<any> {
             throw new Error('Failed to load any schema files')
         }
 
-        // Merge all exports into single schema object
-        return mergeSchemas(validSchemas)
+        const merged = mergeSchemas(validSchemas)
+        validateSchema(merged)
+        return merged
     } catch (error) {
         throw new Error(`Failed to load schema: ${error}`)
     }
@@ -135,6 +151,38 @@ function mergeSchemas(schemas: any[]): any {
     return merged
 }
 
+function validateSchema(schema: any): void {
+    if (!schema || typeof schema !== 'object') {
+        throw new Error(
+            'Invalid schema: Schema must be an object.\n\n' +
+            'Make sure your schema file exports table definitions:\n' +
+            '  export const users = pgTable("users", { id: serial("id").primaryKey() })'
+        )
+    }
+    
+    const tableNames = Object.keys(schema)
+    if (tableNames.length === 0) {
+        throw new Error(
+            'Empty schema: No tables found in schema files.\n\n' +
+            'Make sure your schema files export table definitions using named exports.'
+        )
+    }
+    
+    const hasValidTable = tableNames.some(key => {
+        const table = schema[key]
+        return table && typeof table === 'object' && Symbol.for('drizzle:table') in table
+    })
+    
+    if (!hasValidTable) {
+        throw new Error(
+            `Invalid schema: Found exports (${tableNames.join(', ')}) but none are Drizzle tables.\n\n` +
+            'Make sure you are using Drizzle ORM table definitions:\n' +
+            '  import { pgTable, serial, text } from "drizzle-orm/pg-core"\n' +
+            '  export const users = pgTable("users", { ... })'
+        )
+    }
+}
+
 /**
  * Safely import a module with better error handling.
  * Handles both CommonJS and ES modules.
@@ -145,26 +193,31 @@ function mergeSchemas(schemas: any[]): any {
  */
 async function safeImport(modulePath: string): Promise<any> {
     try {
-        // Normalize path for cross-platform compatibility
         const normalizedPath = modulePath.replace(/\\/g, '/')
         
-        // Try dynamic import first (ES modules)
         const module = await import(
             /* webpackIgnore: true */
             /* @vite-ignore */
             normalizedPath
         )
         return module
-    } catch (error) {
-        // Enhanced error logging for debugging
-        console.error(`Failed to import module: ${modulePath}`, error)
+    } catch (error: any) {
+        const errorMessage = error?.message || String(error)
         
-        // For Next.js debugging: check if the path construction is the issue
+        console.error(
+            `\n❌ Failed to import schema file: ${modulePath}\n` +
+            `   Reason: ${errorMessage}\n\n` +
+            `   Troubleshooting:\n` +
+            `   - Check that the file exists and has no syntax errors\n` +
+            `   - Ensure all imports in the schema file are valid\n` +
+            `   - Try running: bun run build\n`
+        )
+        
         if (process.env.NODE_ENV === 'development') {
-            console.error('Module path details:', {
-                original: modulePath,
-                cwd: process.cwd(),
-                exists: existsSync(modulePath)
+            console.error('Debug info:', {
+                path: modulePath,
+                exists: existsSync(modulePath),
+                cwd: process.cwd()
             })
         }
         
@@ -182,10 +235,8 @@ async function safeImport(modulePath: string): Promise<any> {
  */
 async function safeImportForNextJS(modulePath: string): Promise<any> {
     try {
-        // For Next.js, try to use a relative path from project root
         const relativePath = modulePath.replace(process.cwd(), '.')
         
-        // First attempt: relative path import
         try {
             const module = await import(
                 /* webpackIgnore: true */
@@ -194,7 +245,6 @@ async function safeImportForNextJS(modulePath: string): Promise<any> {
             )
             return module
         } catch (relativeError) {
-            // Second attempt: absolute path with file:// protocol
             try {
                 const fileUrl = `file://${modulePath}`
                 const module = await import(
@@ -204,7 +254,6 @@ async function safeImportForNextJS(modulePath: string): Promise<any> {
                 )
                 return module
             } catch (fileUrlError) {
-                // Third attempt: standard absolute path
                 const module = await import(
                     /* webpackIgnore: true */
                     /* @vite-ignore */
@@ -213,11 +262,21 @@ async function safeImportForNextJS(modulePath: string): Promise<any> {
                 return module
             }
         }
-    } catch (error) {
-        console.error(`Failed to import module in Next.js environment: ${modulePath}`, error)
+    } catch (error: any) {
+        const errorMessage = error?.message || String(error)
+        
+        console.error(
+            `\n❌ Failed to import schema file in Next.js environment: ${modulePath}\n` +
+            `   Reason: ${errorMessage}\n\n` +
+            `   Troubleshooting:\n` +
+            `   - Check that the file exists and has no syntax errors\n` +
+            `   - Ensure all imports in the schema file are valid\n` +
+            `   - Try using manual schema override: initializeConnection(url, { schema })\n` +
+            `   - Try running: bun run build\n`
+        )
         
         if (process.env.NODE_ENV === 'development') {
-            console.error('Next.js import debugging info:', {
+            console.error('Next.js debug info:', {
                 absolutePath: modulePath,
                 relativePath: modulePath.replace(process.cwd(), '.'),
                 cwd: process.cwd(),
