@@ -9,6 +9,7 @@
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.5.0",
     "framer-motion": "^12.23.22",
     "fumadocs-core": "15.7.13",
     "fumadocs-mdx": "11.10.1",
