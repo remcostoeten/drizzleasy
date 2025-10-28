@@ -1,14 +1,12 @@
 # Drizzleasy
 
-[![npm version](https://badge.fury.io/js/drizzleasy.svg)](https://badge.fury.io/js/@remcostoeten/drizzleasy)
 [![npm downloads](https://img.shields.io/npm/dm/@remcostoeten/drizzleasy.svg)](https://www.npmjs.com/package/@remcostoeten/drizzleasy)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/@remcostoeten/drizzleasy)](https://bundlephobia.com/package/@remcostoeten/drizzleasy)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/remcostoeten/drizzleasy.svg?style=social)](https://github.com/remcostoeten/drizzleasy)
 
-Drizzleasy is a library to make CRUD operations and database management ridiculously easy. 100%
-typesafe with full LSP support in your editor due to the chainable syntax.
+<small><i>Because who doesn't love abstractions on top of abstractions</i></small>.<br/>
+As the name implies, makes CRUD ridiculously easy 100% type-safe, with an easy-to-understand chainable syntax and full LSP support.
 
 ### Quick Example
 
@@ -28,28 +26,14 @@ const { data: premiumUsers } = await read('users').where({ isPremium: true })()
 
 return { newUser, premiumUsers }
 ```
-
-## 📚 Documentation
+<hr/>
 
 - **[Full Documentation](https://drizzleasy.vercel.app)** - Complete guides and API reference
-- **[Quickstart](https://drizzleasy.vercel.app/docs/quickstart)** - Get started in 5 minutes
-- **[API Reference](https://drizzleasy.vercel.app/docs/api/core)** - Detailed function documentation
-- **[FAQ](https://drizzleasy.vercel.app/docs/faq)** - Common questions and answers
+- **[Quickstart](https://drizzleasy.vercel.app/docs/03-quickstart)** - Get started in 5 minutes
+- **[API Reference](https://drizzleasy.vercel.app/docs/20-api/01-core)** - Common questions and answers
+- **[FAQ](https://drizzleasy.vercel.app/docs/60-faq)** - Detailed function documentation
 
 ![LSP Demo](premium-vscode-demo.gif)
-
-## Features
-
-- **One-liner setup** - `initializeConnection(url)` replaces complex Drizzle setup
-- **Auto-detection** - Reads your drizzle.config.ts automatically
-- **Multi-database** - PostgreSQL (Neon, Vercel, Docker), SQLite, Turso
-- **Simple syntax** - Natural operators like `age: '>18'` and `name: '*john*'`
-- **100% type-safe** - Full TypeScript support with IntelliSense
-- **Optimistic updates** - Built-in React hooks for smooth UX
-- **Environment switching** - Development/production database configs
-- **Connection caching** - Automatic connection reuse for performance
-- **Dual module support** - Works with both ESM and CommonJS
-- **Zero dependencies** - Only peer dependencies for database drivers
 
 ## Installation
 
@@ -63,7 +47,7 @@ bun add better-sqlite3            # SQLite
 bun add pg                         # Local PostgreSQL
 ```
 
-💡 **Not sure which driver?** See the [installation guide](https://drizzleasy.vercel.app/docs/installation)
+**Not sure which driver?** See the [installation guide]([https://drizzleasy.vercel.app/docs/installation](https://drizzleasy.vercel.app/docs/02-installation))
 
 ## Quick Start
 
@@ -271,10 +255,8 @@ if (error) {
 console.log('Success:', data)
 ```
 
-## Contributing
+MIT ©
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+xxx
+[Remco Stoeten](https://github.com/remcostoeten)
 
-## License
-
-MIT © [Remco Stoeten](https://github.com/remcostoeten)
